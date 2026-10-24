@@ -5,7 +5,9 @@ using UnityEngine.InputSystem;
 using TMPro;
 
 // Müşteriyi yönetir: canavar kapıda bekler, kapıya tıklanınca içeri girer,
-// siparişini harf harf söyler (ağzı oynar), sabrı azalır, ruh hali değişir, kahveye tepki verir.
+// bazen önce bir soru sorar (iki cevap butonu), sonra siparişini harf harf söyler (ağzı oynar),
+// sabrı azalır, ruh hali değişir, kahveye tepki verir.
+// Kafenin güveni: kötü cevaplar güveni düşürür, güven düştükçe herkesin sabrı kısalır.
 // Hangi kahvelerin istenebileceğini ve sabrı GunYoneticisi belirler.
 public class Musteri : MonoBehaviour
 {
@@ -36,6 +38,28 @@ public class Musteri : MonoBehaviour
     public float titremeSuresi = 0.3f;   // Kaç saniye titrer
     public float titremeGucu = 0.06f;    // Ne kadar sert titrer
 
+    [Header("Soru butonları")]
+    public SpriteRenderer cevapButonu1;  // Birinci cevap butonu (Box Collider 2D olmalı)
+    public SpriteRenderer cevapButonu2;  // İkinci cevap butonu (Box Collider 2D olmalı)
+    public TMP_Text cevapYazisi1;        // Birinci butonun yazısı
+    public TMP_Text cevapYazisi2;        // İkinci butonun yazısı
+    public Color butonNormalRenk = new Color(0.75f, 0.75f, 0.75f);
+    public Color butonUzerindeRenk = Color.white;
+
+    [Header("Soru ayarları")]
+    [Range(0f, 1f)] public float soruIhtimali = 0.35f; // Müşterilerin ne kadarı soru sorar
+    public float iyiCevapMutluluk = 5f;     // İyi cevapta mutluluk değişimi
+    public float kotuCevapMutluluk = -10f;  // Kötü cevapta mutluluk değişimi
+    public float tepkiSonrasiBekleme = 1.2f; // Tepkiden sonra siparişe geçmeden önce bekleme
+
+    [Header("Kafenin güveni")]
+    public TMP_Text guvenYazisi;            // "Güven %85" yazısı (boş kalabilir)
+    public float iyiCevapGuven = 5f;        // İyi cevapta güven artışı
+    public float kotuCevapGuven = -15f;     // Kötü cevapta güven azalışı
+    [Range(0.1f, 1f)] public float enDusukSabirOrani = 0.5f; // Güven 0 olunca sabır bu orana iner
+
+    const string GuvenAnahtari = "kafeGuveni";
+
     SpriteRenderer gorsel;
     Daktilo daktilo;
     Vector3 asilKonum;
@@ -52,6 +76,17 @@ public class Musteri : MonoBehaviour
     // Torba sistemi: her canavar bir kez gelmeden hiçbiri tekrar gelmez
     List<CanavarTuru> torba = new List<CanavarTuru>();
     CanavarTuru sonCanavar; // Bir önceki müşteri
+
+    // Soru sistemi
+    enum Asama { Yok, Soru, Tepki }
+    Asama asama = Asama.Yok;
+    Soru aktifSoru;
+    bool butonlarGorunuyor = false;
+    float tepkiSayac;
+    Dictionary<CanavarTuru, List<int>> kalanSorular = new Dictionary<CanavarTuru, List<int>>();
+
+    // Kafenin güveni (0 - 100)
+    float guven = 100f;
 
     float kalanSabir;
     bool bekliyor = false;       // İçeride, kahve bekliyor mu
@@ -77,15 +112,25 @@ public class Musteri : MonoBehaviour
         gorsel.enabled = false;
         sabirCubugu.gameObject.SetActive(false);
         if (baloncuk != null) baloncuk.SetActive(false);
+        ButonlariGizle();
         YaziTemizle();
         sonucYazisi.text = "";
+
+        guven = PlayerPrefs.GetFloat(GuvenAnahtari, 100f);
+        GuvenYazisiniGuncelle();
     }
 
     // Müşteri içeride kahve bekliyor mu (korku efektleri için)
     public bool IcerideBekliyor => bekliyor;
 
+    // Canavar içeride mi (soru sorarken, beklerken ya da tepki verirken)
+    public bool IcerideMi => gorsel != null && gorsel.enabled && !kapidaBekliyor;
+
     // Şu an gelen canavar (jumpscare için)
     public CanavarTuru SuankiCanavar => tur;
+
+    // Kafenin güveni (0 - 100)
+    public float Guven => guven;
 
     // Jumpscare başlarken müşteriyi, sabır çubuğunu ve baloncuğu gizler
     public void JumpscareIcinGizle()
@@ -93,6 +138,8 @@ public class Musteri : MonoBehaviour
         StopAllCoroutines();
         gecisOynuyor = false;
         bekleyenCumle = null;
+        asama = Asama.Yok;
+        ButonlariGizle();
         transform.position = asilKonum;
         transform.localScale = asilBoyut;
         gorsel.enabled = false;
@@ -101,9 +148,31 @@ public class Musteri : MonoBehaviour
         YaziTemizle();
     }
 
+    // Canavar saldırıyor (örn. ikizler postere bakıldığını gördü): oyun biter
+    public void Saldir(string metin)
+    {
+        if (mutluluk.OyunBitti) return;
+
+        CancelInvoke();
+        bekliyor = false;
+        kapidaBekliyor = false;
+        asama = Asama.Yok;
+        ButonlariGizle();
+        kapi.color = kapiNormalRenk;
+        kahveDoldurma.Temizle();
+        sonucYazisi.text = "";
+
+        mutluluk.Saldiri(metin);
+    }
+
     // GunYoneticisi yeni gün başlayınca çağırır
     public void GunuBaslat()
     {
+        // Yeni oyunda güven sıfırdan başlar, sonraki günlerde kaldığı yerden devam eder
+        if (gunYoneticisi.GunNumarasi <= 1) guven = 100f;
+        else guven = PlayerPrefs.GetFloat(GuvenAnahtari, 100f);
+        GuvenYazisiniGuncelle();
+
         YeniMusteri();
     }
 
@@ -113,6 +182,14 @@ public class Musteri : MonoBehaviour
         if (kapidaBekliyor)
         {
             KapiBekle();
+            return;
+        }
+
+        // Soru sorulurken ve tepki verilirken sabır azalmaz
+        if (asama != Asama.Yok)
+        {
+            AgizOynat();
+            SoruAsamasi();
             return;
         }
 
@@ -149,11 +226,24 @@ public class Musteri : MonoBehaviour
         else siparisYazisi.text = "";
     }
 
+    bool Yaziyor => daktilo != null && daktilo.YaziyorMu;
+
     // Geçiş bittiyse ve söylenecek cümle varsa söyle
     void BekleyenCumleyiSoyle()
     {
-        if (bekleyenCumle != null && bekliyor) YaziGoster(bekleyenCumle);
+        if (bekleyenCumle != null && (bekliyor || asama != Asama.Yok)) YaziGoster(bekleyenCumle);
         bekleyenCumle = null;
+    }
+
+    // Fare bu objenin üstünde mi (üst üste binen objeler olsa bile doğru çalışır)
+    bool UstundeMi(GameObject obje, Vector2 nokta)
+    {
+        if (obje == null) return false;
+        foreach (Collider2D c in Physics2D.OverlapPointAll(nokta))
+        {
+            if (c.gameObject == obje) return true;
+        }
+        return false;
     }
 
     // Konuşurken ağız çizimleri arasında rastgele geçiş yapar, yazı bitince ağız kapanır
@@ -164,8 +254,7 @@ public class Musteri : MonoBehaviour
         List<Sprite> kareler = tur.KonusmaKareleri(hal);
         if (kareler.Count == 0) return;
 
-        bool konusuyor = daktilo != null && daktilo.YaziyorMu;
-        if (!konusuyor)
+        if (!Yaziyor)
         {
             if (gorsel.sprite != halResmi) gorsel.sprite = halResmi;
             sonAgizKaresi = -1;
@@ -196,11 +285,10 @@ public class Musteri : MonoBehaviour
 
         // Kapıya tıklandı mı
         var fare = Mouse.current;
-        if (fare != null && fare.leftButton.wasPressedThisFrame)
+        if (fare != null && fare.leftButton.wasPressedThisFrame && !Poster.Engelli)
         {
             Vector2 nokta = Camera.main.ScreenToWorldPoint(fare.position.ReadValue());
-            Collider2D tiklanan = Physics2D.OverlapPoint(nokta);
-            if (tiklanan != null && tiklanan.gameObject == kapi.gameObject)
+            if (UstundeMi(kapi.gameObject, nokta))
             {
                 IceriAl(false);
                 return;
@@ -240,15 +328,208 @@ public class Musteri : MonoBehaviour
         HalGoster(kizgin ? 2 : 0);
         if (kizgin) StartCoroutine(Titre());
 
-        YaziGoster(tur.CumleSec(siparis));
         sonucYazisi.text = kizgin ? "ÇOK BEKLETTİN!" : "";
         if (kizgin) Invoke(nameof(BeklettinYazisiniSil), 1.5f);
 
         kalanSabir = sabirSuresi;
-        bekliyor = true;
         CubuguCiz();
+
+        // Kızgın girmediyse bazen önce bir soru sorar
+        aktifSoru = kizgin ? null : SoruSec();
+        if (aktifSoru != null)
+        {
+            asama = Asama.Soru;
+            butonlarGorunuyor = false;
+            YaziGoster(CanavarTuru.KahveyiYerlestir(aktifSoru.soru, siparis));
+            return;
+        }
+
+        SiparisVer();
+    }
+
+    // Canavar siparişini söyler, kahve yapmaya başlanabilir
+    void SiparisVer()
+    {
+        asama = Asama.Yok;
+        ButonlariGizle();
+
+        // Güven değiştiyse bu müşterinin sabrı da hemen değişsin
+        sabirSuresi = tur.sabirSuresi * gunYoneticisi.SabirCarpani * GuvenCarpani();
+        kalanSabir = sabirSuresi;
+        CubuguCiz();
+
+        YaziGoster(tur.CumleSec(siparis));
+        bekliyor = true;
         kahveDoldurma.YeniBardak(siparis);
     }
+
+    // ---------- SORU SİSTEMİ ----------
+
+    // Bu canavarın henüz sorulmamış sorularından birini seçer (ya da soru sormaz)
+    Soru SoruSec()
+    {
+        if (tur.sorular == null || tur.sorular.Length == 0) return null;
+        if (Random.value > soruIhtimali) return null;
+
+        if (!kalanSorular.TryGetValue(tur, out List<int> kalan))
+        {
+            kalan = new List<int>();
+            kalanSorular[tur] = kalan;
+        }
+
+        // Hepsi sorulduysa baştan doldur
+        if (kalan.Count == 0)
+        {
+            for (int i = 0; i < tur.sorular.Length; i++)
+            {
+                Soru s = tur.sorular[i];
+                if (s != null && !string.IsNullOrEmpty(s.soru)) kalan.Add(i);
+            }
+        }
+        if (kalan.Count == 0) return null;
+
+        int sira = Random.Range(0, kalan.Count);
+        int secilen = kalan[sira];
+        kalan.RemoveAt(sira);
+        return tur.sorular[secilen];
+    }
+
+    void SoruAsamasi()
+    {
+        if (asama == Asama.Soru)
+        {
+            // Soru yazılıp bitince butonlar çıkar
+            if (!butonlarGorunuyor)
+            {
+                if (!Yaziyor) ButonlariGoster();
+                return;
+            }
+
+            var fare = Mouse.current;
+            if (fare == null) return;
+            Vector2 nokta = Camera.main.ScreenToWorldPoint(fare.position.ReadValue());
+
+            bool ustunde1 = cevapButonu1 != null && UstundeMi(cevapButonu1.gameObject, nokta);
+            bool ustunde2 = cevapButonu2 != null && UstundeMi(cevapButonu2.gameObject, nokta);
+            if (cevapButonu1 != null) cevapButonu1.color = ustunde1 ? butonUzerindeRenk : butonNormalRenk;
+            if (cevapButonu2 != null) cevapButonu2.color = ustunde2 ? butonUzerindeRenk : butonNormalRenk;
+
+            if (fare.leftButton.wasPressedThisFrame && !Poster.Engelli && !TarifKitabi.Acik)
+            {
+                if (ustunde1) Cevapla(1);
+                else if (ustunde2) Cevapla(2);
+            }
+        }
+        else if (asama == Asama.Tepki)
+        {
+            // Geçiş ve tepki cümlesi bitince biraz bekle, sonra siparişi söyle
+            if (gecisOynuyor || bekleyenCumle != null || Yaziyor)
+            {
+                tepkiSayac = tepkiSonrasiBekleme;
+                return;
+            }
+            tepkiSayac -= Time.deltaTime;
+            if (tepkiSayac <= 0f) SiparisVer();
+        }
+    }
+
+    void Cevapla(int cevap)
+    {
+        Sesler.Tiklama();
+        ButonlariGizle();
+
+        bool iyi = cevap == aktifSoru.iyiCevap;
+
+        // Güven ve mutluluk değişir
+        GuvenDegistir(iyi ? iyiCevapGuven : kotuCevapGuven);
+        mutluluk.Degistir(iyi ? iyiCevapMutluluk : kotuCevapMutluluk);
+        if (mutluluk.OyunBitti)
+        {
+            asama = Asama.Yok;
+            return;
+        }
+
+        sonucYazisi.text = iyi ? "GÜVEN ARTTI!" : "GÜVEN AZALDI!";
+        CancelInvoke(nameof(GuvenMesajiniSil));
+        Invoke(nameof(GuvenMesajiniSil), 1.5f);
+
+        string tepki = CanavarTuru.KahveyiYerlestir(iyi ? aktifSoru.iyiTepki : aktifSoru.kotuTepki, siparis);
+        asama = Asama.Tepki;
+        tepkiSayac = tepkiSonrasiBekleme;
+
+        if (iyi)
+        {
+            if (!string.IsNullOrEmpty(tepki)) YaziGoster(tepki);
+        }
+        else
+        {
+            // Kötü cevap: canavar nötr hale geçer, geçiş bitince tepkisini söyler
+            HaleGec(1, false);
+            bekleyenCumle = string.IsNullOrEmpty(tepki) ? null : tepki;
+            if (!gecisOynuyor) BekleyenCumleyiSoyle();
+        }
+    }
+
+    void GuvenMesajiniSil()
+    {
+        if (sonucYazisi.text == "GÜVEN ARTTI!" || sonucYazisi.text == "GÜVEN AZALDI!") sonucYazisi.text = "";
+    }
+
+    void ButonlariGoster()
+    {
+        butonlarGorunuyor = true;
+        if (cevapButonu1 != null)
+        {
+            cevapButonu1.gameObject.SetActive(true);
+            cevapButonu1.color = butonNormalRenk;
+        }
+        if (cevapButonu2 != null)
+        {
+            cevapButonu2.gameObject.SetActive(true);
+            cevapButonu2.color = butonNormalRenk;
+        }
+        if (cevapYazisi1 != null)
+        {
+            cevapYazisi1.gameObject.SetActive(true);
+            cevapYazisi1.text = aktifSoru.cevap1;
+        }
+        if (cevapYazisi2 != null)
+        {
+            cevapYazisi2.gameObject.SetActive(true);
+            cevapYazisi2.text = aktifSoru.cevap2;
+        }
+    }
+
+    void ButonlariGizle()
+    {
+        butonlarGorunuyor = false;
+        if (cevapButonu1 != null) cevapButonu1.gameObject.SetActive(false);
+        if (cevapButonu2 != null) cevapButonu2.gameObject.SetActive(false);
+        if (cevapYazisi1 != null) cevapYazisi1.gameObject.SetActive(false);
+        if (cevapYazisi2 != null) cevapYazisi2.gameObject.SetActive(false);
+    }
+
+    // ---------- GÜVEN ----------
+
+    void GuvenDegistir(float miktar)
+    {
+        guven = Mathf.Clamp(guven + miktar, 0f, 100f);
+        GuvenYazisiniGuncelle();
+    }
+
+    // Güven 100 iken sabır tam, güven 0 iken sabır "enDusukSabirOrani" kadar
+    float GuvenCarpani()
+    {
+        return Mathf.Lerp(enDusukSabirOrani, 1f, guven / 100f);
+    }
+
+    void GuvenYazisiniGuncelle()
+    {
+        if (guvenYazisi == null) return;
+        guvenYazisi.text = "Güven %" + Mathf.RoundToInt(guven);
+    }
+
+    // ---------- KAHVE SONUCU ----------
 
     void BeklettinYazisiniSil()
     {
@@ -290,6 +571,7 @@ public class Musteri : MonoBehaviour
     {
         bekliyor = false;
         bekleyenCumle = null;
+        CancelInvoke(nameof(GuvenMesajiniSil));
         sonucYazisi.text = mesaj;
         YaziTemizle();
         if (baloncuk != null) baloncuk.SetActive(false);
@@ -314,12 +596,14 @@ public class Musteri : MonoBehaviour
         else Invoke(nameof(YeniMusteri), sonucBeklemeSuresi);
     }
 
-    // Gün bitti: ortalığı temizle, gün sonu ekranını aç
+    // Gün bitti: ortalığı temizle, güveni kaydet, gün sonu ekranını aç
     void GunuKapat()
     {
         StopAllCoroutines();
         gecisOynuyor = false;
         bekleyenCumle = null;
+        asama = Asama.Yok;
+        ButonlariGizle();
         transform.position = asilKonum;
         transform.localScale = asilBoyut;
 
@@ -329,6 +613,10 @@ public class Musteri : MonoBehaviour
         sonucYazisi.text = "";
         kahveDoldurma.Temizle();
         if (muzik != null) muzik.Seviye(0);
+
+        // Güven gün sonunda kaydedilir ("Devam Et" ile kaldığı yerden sürer)
+        PlayerPrefs.SetFloat(GuvenAnahtari, guven);
+        PlayerPrefs.Save();
 
         gunYoneticisi.GunSonuGoster();
     }
@@ -379,6 +667,8 @@ public class Musteri : MonoBehaviour
         StopAllCoroutines();
         gecisOynuyor = false;
         bekleyenCumle = null;
+        asama = Asama.Yok;
+        ButonlariGizle();
         transform.position = asilKonum;
         transform.localScale = asilBoyut;
 
@@ -395,10 +685,10 @@ public class Musteri : MonoBehaviour
             Debug.LogError("Musteri: Canavarlar listesindeki kutular bos! Kartlari surukle.");
             return;
         }
-        sabirSuresi = tur.sabirSuresi * gunYoneticisi.SabirCarpani;
+        sabirSuresi = tur.sabirSuresi * gunYoneticisi.SabirCarpani * GuvenCarpani();
         HalGoster(0);
         siparis = gunYoneticisi.RastgeleKahve();
-        Debug.Log(gunYoneticisi.GunNumarasi + ". gun: " + tur.canavarAdi + " kapida, istedigi: " + siparis);
+        Debug.Log(gunYoneticisi.GunNumarasi + ". gun: " + tur.canavarAdi + " kapida, istedigi: " + siparis + " | guven: " + guven);
 
         // Canavar henüz görünmüyor, kapıda bekliyor
         gorsel.enabled = false;

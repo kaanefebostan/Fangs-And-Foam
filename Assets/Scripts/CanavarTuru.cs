@@ -2,6 +2,18 @@ using System.Collections.Generic;
 using System.Globalization;
 using UnityEngine;
 
+// Canavarın sorabileceği bir soru ve iki cevabı.
+[System.Serializable]
+public class Soru
+{
+    [TextArea] public string soru;          // Canavarın sorusu
+    public string cevap1;                   // Birinci buton
+    public string cevap2;                   // İkinci buton
+    [Range(1, 2)] public int iyiCevap = 1;  // Hangi cevap iyi (1 ya da 2)
+    [TextArea] public string iyiTepki;      // İyi cevap verilince canavarın dediği
+    [TextArea] public string kotuTepki;     // Kötü cevap verilince canavarın dediği
+}
+
 // Bir canavar türünün ayar kartı. Kod bilmeden Inspector'dan doldurulur.
 // Oluşturmak için: Project panelinde sağ tık > Create > Kafe > Canavar Turu
 [CreateAssetMenu(fileName = "YeniCanavar", menuName = "Kafe/Canavar Turu")]
@@ -53,6 +65,9 @@ public class CanavarTuru : ScriptableObject
     [TextArea] public string[] notreGecinceCumleleri;    // Sabrı azalmaya başlayınca
     [TextArea] public string[] kizginaGecinceCumleleri;  // Sabrı bitmek üzereyken
 
+    [Header("Sorular (boş kalabilir): canavar bazen siparişten önce bunlardan birini sorar")]
+    public Soru[] sorular;
+
     static readonly CultureInfo turkce = new CultureInfo("tr-TR");
 
     // Kahvenin oyunda görünen adı
@@ -65,7 +80,7 @@ public class CanavarTuru : ScriptableObject
     }
 
     // Cümledeki {kahve} ve {KAHVE} yerine kahvenin adını koyar
-    static string KahveyiYerlestir(string cumle, string kahve)
+    public static string KahveyiYerlestir(string cumle, string kahve)
     {
         if (string.IsNullOrEmpty(cumle)) return cumle;
         string ad = KahveAdi(kahve);

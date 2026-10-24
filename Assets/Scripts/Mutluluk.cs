@@ -45,6 +45,7 @@ public class Mutluluk : MonoBehaviour
     float cubukSolKenar;
     SpriteRenderer cubukGorsel;
     bool yenidenBaslayabilir = false;
+    string ozelMetin;   // Saldırıyla biterse "KAFE KAPANDI" yerine yazılacak metin
 
     void Awake()
     {
@@ -94,6 +95,18 @@ public class Mutluluk : MonoBehaviour
         }
     }
 
+    // Bir canavar saldırdı: mutluluk ne olursa olsun oyun hemen biter
+    public void Saldiri(string metin)
+    {
+        if (OyunBitti) return;
+
+        ozelMetin = metin;
+        Deger = 0f;
+        Ciz();
+        OyunBitti = true;
+        StartCoroutine(OyunSonuEkrani());
+    }
+
     // Önce jumpscare, sonra ekran yavaşça kararır, şerit ve yazı belirir
     IEnumerator OyunSonuEkrani()
     {
@@ -101,7 +114,8 @@ public class Mutluluk : MonoBehaviour
 
         if (bitisSesi != null) AudioSource.PlayClipAtPoint(bitisSesi, Camera.main.transform.position);
 
-        oyunBittiYazisi.text = bitisMetni;
+        string metin = string.IsNullOrEmpty(ozelMetin) ? bitisMetni : ozelMetin;
+        oyunBittiYazisi.text = metin;
         oyunBittiYazisi.alpha = 0f;
         Vector3 yaziBoyut = oyunBittiYazisi.transform.localScale;
 
@@ -120,7 +134,7 @@ public class Mutluluk : MonoBehaviour
         }
 
         yield return new WaitForSeconds(0.8f);
-        oyunBittiYazisi.text = bitisMetni + "\n<size=35%>Enter: tekrar dene</size>";
+        oyunBittiYazisi.text = metin + "\n<size=35%>Enter: tekrar dene</size>";
         yenidenBaslayabilir = true;
     }
 

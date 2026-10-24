@@ -43,3 +43,10 @@ MonoBehaviour:
   notreGecinceCumleleri: []
   kizginaGecinceCumleleri:
   - "H\xC2L\xC2 {KAHVE} YOK MU?!"
+  sorular:
+  - soru: "Bize tuhaf bak\u0131yosun. Bizi tan\u0131yo musun?"
+    cevap1: "Hay\u0131r, ilk kez g\xF6r\xFCyorum."
+    cevap2: "Bir yerden tan\u0131d\u0131k..."
+    iyiCevap: 1
+    iyiTepki: "\u0130yi. \xD6yle kals\u0131n."
+    kotuTepki: "Yanl\u0131\u015F hat\u0131rl\u0131yosun bence..."

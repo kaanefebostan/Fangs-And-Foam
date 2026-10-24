@@ -72,8 +72,8 @@ public class KahveDoldurma : MonoBehaviour
         var klavye = Keyboard.current;
         if (!aktif || fare == null || klavye == null || DuraklatmaMenusu.Acik) return;
 
-        // Tarif kitabı açıkken kahve yapılamaz
-        if (TarifKitabi.Acik)
+        // Tarif kitabı ya da poster açıkken kahve yapılamaz
+        if (TarifKitabi.Acik || Poster.Engelli)
         {
             if (dokuyor) DokmeyiBitir();
             return;
