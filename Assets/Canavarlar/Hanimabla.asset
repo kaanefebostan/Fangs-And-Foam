@@ -25,6 +25,6 @@ MonoBehaviour:
   sabirSuresi: 25
   espressoCumleleri: []
   americanoCumleleri:
-  - Bana olum kadar sicak bir AMERICANO yap.
+  - "Bana \xF6l\xFCm kadar s\u0131cak bir AMERICANO yap."
   latteCumleleri: []
   pslCumleleri: []

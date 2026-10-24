@@ -108,6 +108,7 @@ public class KahveDoldurma : MonoBehaviour
     {
         aktif = false;
         dokuyor = false;
+        Sesler.DokmeDur();
     }
 
     void TiklamayaBak(Mouse fare)
@@ -117,6 +118,7 @@ public class KahveDoldurma : MonoBehaviour
         Vector2 nokta = Camera.main.ScreenToWorldPoint(fare.position.ReadValue());
         Collider2D tiklanan = Physics2D.OverlapPoint(nokta);
         if (tiklanan == null) return;
+        Sesler.Tiklama();
 
         // Bardağa tıklandıysa ve şurup gibi dökülmeyen bir şey seçiliyse: ekle
         if (tiklanan.transform == bardak)
@@ -143,6 +145,7 @@ public class KahveDoldurma : MonoBehaviour
         if (dokuyor || secili == null || !secili.dokulur || doluluk >= 1f) return;
 
         dokuyor = true;
+        Sesler.DokmeBasla();
         katmanBaslangic = doluluk;
 
         // Yeni bir renkli katman oluştur
@@ -160,6 +163,7 @@ public class KahveDoldurma : MonoBehaviour
     void DokmeyiBitir()
     {
         dokuyor = false;
+        Sesler.DokmeDur();
 
         // Bu döküm hedefe ne kadar yakın
         float hedef = HedefSeviye(farklar.Count + 1);
@@ -177,6 +181,7 @@ public class KahveDoldurma : MonoBehaviour
         farklar.Clear();
         doluluk = 0f;
         dokuyor = false;
+        Sesler.DokmeDur();
         sonHedef = Random.Range(0.7f, 0.9f); // Her bardakta hedef biraz değişir
 
         HedefCizgiyiGuncelle();
@@ -227,6 +232,8 @@ public class KahveDoldurma : MonoBehaviour
     {
         aktif = false;
         dokuyor = false;
+        Sesler.DokmeDur();
+        Sesler.Zil();
 
         string kalite;
         if (!TarifTutuyor())

@@ -24,6 +24,7 @@ MonoBehaviour:
   kizginRenk: {r: 0.9, g: 0.1, b: 0.1, a: 1}
   sabirSuresi: 12
   espressoCumleleri: []
-  americanoCumleleri: []
+  americanoCumleleri:
+  - "Bana \xF6l\xFCm kadar s\u0131cak bir AMERICANO yap."
   latteCumleleri: []
   pslCumleleri: []

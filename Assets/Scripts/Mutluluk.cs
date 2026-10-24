@@ -1,14 +1,18 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using TMPro;
 
-// Kafenin mutluluk çubuğu. 0 olunca oyun biter, Enter ile yeniden başlar.
+// Kafenin mutluluk çubuğu. 0 olunca karanlık bir "oyun bitti" ekranı belirir,
+// Enter ile oyun yeniden başlar.
 public class Mutluluk : MonoBehaviour
 {
     [Header("Sahnedeki objeler")]
     public Transform cubuk;             // İçteki renkli çubuk
-    public TMP_Text oyunBittiYazisi;    // Ortadaki büyük "KAFE KAPANDI" yazısı
+    public TMP_Text oyunBittiYazisi;    // Ortadaki büyük yazı
+    public SpriteRenderer karartma;     // Tüm ekranı kaplayan siyah kutu
+    public SpriteRenderer bant;         // Yazının arkasındaki siyah şerit
 
     [Header("Ayarlar")]
     public float baslangic = 70f;       // Oyun başındaki mutluluk
@@ -22,6 +26,11 @@ public class Mutluluk : MonoBehaviour
     public float yanlis = -20f;
     public float gecKalma = -25f;
 
+    [Header("Oyun sonu ekranı")]
+    public string bitisMetni = "KAFE KAPANDI";
+    public float belirmeSuresi = 2.5f;   // Ekranın kararıp yazının belirmesi kaç saniye sürer
+    public AudioClip bitisSesi;          // İsteğe bağlı: gong / boom sesi
+
     [Header("Renkler")]
     public Color iyiRenk = new Color(0.2f, 0.9f, 0.2f);   // yeşil
     public Color ortaRenk = new Color(1f, 0.8f, 0.2f);    // sarı
@@ -34,6 +43,7 @@ public class Mutluluk : MonoBehaviour
     float cubukTamBoy;
     float cubukSolKenar;
     SpriteRenderer cubukGorsel;
+    bool yenidenBaslayabilir = false;
 
     void Awake()
     {
@@ -43,14 +53,16 @@ public class Mutluluk : MonoBehaviour
 
         Deger = baslangic;
         if (oyunBittiYazisi != null) oyunBittiYazisi.text = "";
+        SaydamlikAyarla(karartma, 0f);
+        SaydamlikAyarla(bant, 0f);
         Ciz();
     }
 
     void Update()
     {
-        // Oyun bittiyse Enter ile baştan başla
+        // Oyun sonu ekranı tamamlandıysa Enter ile baştan başla
         var klavye = Keyboard.current;
-        if (OyunBitti && klavye != null && klavye.enterKey.wasPressedThisFrame)
+        if (OyunBitti && yenidenBaslayabilir && klavye != null && klavye.enterKey.wasPressedThisFrame)
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
@@ -77,9 +89,44 @@ public class Mutluluk : MonoBehaviour
         if (Deger <= 0f)
         {
             OyunBitti = true;
-            if (oyunBittiYazisi != null)
-                oyunBittiYazisi.text = "KAFE KAPANDI\n<size=50%>Enter: tekrar dene</size>";
+            StartCoroutine(OyunSonuEkrani());
         }
+    }
+
+    // Ekran yavaşça kararır, şerit ve yazı belirir, yazı hafifçe büyür
+    IEnumerator OyunSonuEkrani()
+    {
+        if (bitisSesi != null) AudioSource.PlayClipAtPoint(bitisSesi, Camera.main.transform.position);
+
+        oyunBittiYazisi.text = bitisMetni;
+        oyunBittiYazisi.alpha = 0f;
+        Vector3 yaziBoyut = oyunBittiYazisi.transform.localScale;
+
+        float t = 0f;
+        while (t < belirmeSuresi)
+        {
+            t += Time.deltaTime;
+            float oran = Mathf.Clamp01(t / belirmeSuresi);
+            float yumusak = oran * oran * (3f - 2f * oran); // yavaş başla, yavaş bitir
+
+            SaydamlikAyarla(karartma, 0.6f * yumusak);
+            SaydamlikAyarla(bant, 0.85f * yumusak);
+            oyunBittiYazisi.alpha = yumusak;
+            oyunBittiYazisi.transform.localScale = yaziBoyut * Mathf.Lerp(0.92f, 1.05f, oran);
+            yield return null;
+        }
+
+        yield return new WaitForSeconds(0.8f);
+        oyunBittiYazisi.text = bitisMetni + "\n<size=35%>Enter: tekrar dene</size>";
+        yenidenBaslayabilir = true;
+    }
+
+    void SaydamlikAyarla(SpriteRenderer kutu, float saydamlik)
+    {
+        if (kutu == null) return;
+        Color c = kutu.color;
+        c.a = saydamlik;
+        kutu.color = c;
     }
 
     void Ciz()
