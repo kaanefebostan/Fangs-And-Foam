@@ -111,6 +111,16 @@ public class KahveDoldurma : MonoBehaviour
         Sesler.DokmeDur();
     }
 
+    // Gün bitince bardağı ve yazıyı temizler
+    public void Temizle()
+    {
+        aktif = false;
+        BardagiBosalt();
+        secili = null;
+        if (bardakYazisi != null) bardakYazisi.text = "";
+        hedefCizgi.gameObject.SetActive(false);
+    }
+
     void TiklamayaBak(Mouse fare)
     {
         if (dokuyor) return;
@@ -225,7 +235,7 @@ public class KahveDoldurma : MonoBehaviour
     {
         if (bardakYazisi == null) return;
         string seciliAd = secili != null ? secili.malzemeAdi : "-";
-        bardakYazisi.text = "Secili: " + seciliAd + "\n" + string.Join(" + ", icindekiler);
+        bardakYazisi.text = "Seçili: " + seciliAd + "\n" + string.Join(" + ", icindekiler);
     }
 
     void ServisEt()

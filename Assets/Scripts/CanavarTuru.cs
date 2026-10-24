@@ -17,6 +17,7 @@ public class CanavarTuru : ScriptableObject
     public Sprite[] mutludanNotre;     // Mutlu -> nötr geçiş kareleri
     public Sprite[] notrdenKizgina;    // Nötr -> kızgın geçiş kareleri
     public float kareSuresi = 0.08f;   // Her kare kaç saniye görünür
+    public float siyahGecisSuresi = 0.25f; // Kare yoksa: siyaha kararma ve açılma süresi
 
     [Header("Resim yokken kullanılacak renkler")]
     public Color mutluRenk = new Color(0.55f, 0f, 1f);     // mor

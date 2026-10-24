@@ -5,10 +5,12 @@ using UnityEngine.InputSystem;
 using TMPro;
 
 // Müşteriyi yönetir: canavar kapıda bekler, kapıya tıklanınca içeri girer,
-// sipariş cümlesini söyler, sabrı azalır, ruh hali değişir, kahveye tepki verir.
+// siparişini söyler, sabrı azalır, ruh hali değişir, kahveye tepki verir.
+// Hangi kahvelerin istenebileceğini ve sabrı GunYoneticisi belirler.
 public class Musteri : MonoBehaviour
 {
     [Header("Sahnedeki objeler")]
+    public GunYoneticisi gunYoneticisi; // Günleri yöneten obje
     public KahveDoldurma kahveDoldurma; // Kahve makinesi
     public Mutluluk mutluluk;           // Kafenin mutluluk çubuğu
     public Muzik muzik;                 // Kafe müziği
@@ -17,6 +19,8 @@ public class Musteri : MonoBehaviour
     public TMP_Text siparisYazisi;      // Müşterinin söylediği cümle
     public TMP_Text sonucYazisi;        // Ortadaki büyük sonuç yazısı
     public SpriteRenderer kapi;         // Tıklanınca müşteriyi içeri alan kapı
+    public GameObject baloncuk;         // Konuşma baloncuğu (boş kalabilir)
+    public ParticleSystem gecisEfekti;  // Hal değişirken çıkan efekt (boş kalabilir)
 
     [Header("Canavarlar (Canavar Turu kartlarını buraya sürükle)")]
     public CanavarTuru[] canavarlar;
@@ -25,7 +29,6 @@ public class Musteri : MonoBehaviour
     public float sonucBeklemeSuresi = 2f;    // Sonuç ekranda kaç saniye kalır
     public float kapiSabri = 6f;             // Canavar kapıda kaç saniye bekler
     public Color kapiParlamaRengi = new Color(1f, 0.85f, 0.3f); // Kapı yanıp sönerken rengi
-    public string[] siparisler = { "Espresso", "Americano", "Latte", "Pumpkin Spice Latte" };
 
     [Header("Geçiş efekti")]
     public float titremeSuresi = 0.3f;   // Kaç saniye titrer
@@ -56,6 +59,18 @@ public class Musteri : MonoBehaviour
 
         cubukTamBoy = sabirCubugu.localScale.x;
         cubukSolKenar = sabirCubugu.position.x - cubukTamBoy / 2f;
+
+        // Gün başlayana kadar ortada kimse yok
+        gorsel.enabled = false;
+        sabirCubugu.gameObject.SetActive(false);
+        if (baloncuk != null) baloncuk.SetActive(false);
+        siparisYazisi.text = "";
+        sonucYazisi.text = "";
+    }
+
+    // GunYoneticisi yeni gün başlayınca çağırır
+    public void GunuBaslat()
+    {
         YeniMusteri();
     }
 
@@ -81,7 +96,7 @@ public class Musteri : MonoBehaviour
         {
             kahveDoldurma.Durdur();
             HaleGec(2);
-            Bitir("GEC KALDIN!", "GEC");
+            Bitir("GEÇ KALDIN!", "GEC");
         }
     }
 
@@ -116,6 +131,7 @@ public class Musteri : MonoBehaviour
                 kapidaBekliyor = false;
                 kapi.color = kapiNormalRenk;
                 siparisYazisi.text = "";
+                sonucYazisi.text = "";
                 return;
             }
             IceriAl(true);
@@ -133,12 +149,13 @@ public class Musteri : MonoBehaviour
 
         gorsel.enabled = true;
         sabirCubugu.gameObject.SetActive(true);
+        if (baloncuk != null) baloncuk.SetActive(true);
 
         HalGoster(kizgin ? 2 : 0);
         if (kizgin) StartCoroutine(Titre());
 
         siparisYazisi.text = tur.CumleSec(siparis);
-        sonucYazisi.text = kizgin ? "COK BEKLETTIN!" : "";
+        sonucYazisi.text = kizgin ? "ÇOK BEKLETTİN!" : "";
         if (kizgin) Invoke(nameof(BeklettinYazisiniSil), 1.5f);
 
         kalanSabir = sabirSuresi;
@@ -149,7 +166,7 @@ public class Musteri : MonoBehaviour
 
     void BeklettinYazisiniSil()
     {
-        if (sonucYazisi.text == "COK BEKLETTIN!") sonucYazisi.text = "";
+        if (sonucYazisi.text == "ÇOK BEKLETTİN!") sonucYazisi.text = "";
     }
 
     // Kahve makinesi servis edilince bunu çağırır
@@ -160,26 +177,26 @@ public class Musteri : MonoBehaviour
         if (kalite == "MUKEMMEL")
         {
             HaleGec(0);
-            Bitir("MUKEMMEL!", kalite);
+            Bitir("MÜKEMMEL!", kalite);
         }
         else if (kalite == "IYI")
         {
-            Bitir("IYI", kalite);
+            Bitir("İYİ", kalite);
         }
         else if (kalite == "TASTI")
         {
             HaleGec(2);
-            Bitir("TASTI!", kalite);
+            Bitir("TAŞTI!", kalite);
         }
         else if (kalite == "YANLIS")
         {
             HaleGec(2);
-            Bitir("YANLIS KAHVE!", kalite);
+            Bitir("YANLIŞ KAHVE!", kalite);
         }
         else
         {
             HaleGec(2);
-            Bitir("KOTU...", kalite);
+            Bitir("KÖTÜ...", kalite);
         }
     }
 
@@ -187,6 +204,8 @@ public class Musteri : MonoBehaviour
     {
         bekliyor = false;
         sonucYazisi.text = mesaj;
+        siparisYazisi.text = "";
+        if (baloncuk != null) baloncuk.SetActive(false);
 
         // Kafenin mutluluğunu değiştir
         mutluluk.SonucaGoreDegistir(sonuc);
@@ -195,12 +214,33 @@ public class Musteri : MonoBehaviour
         if (mutluluk.OyunBitti)
         {
             kahveDoldurma.Durdur();
-            siparisYazisi.text = "";
             sonucYazisi.text = "";
             return;
         }
 
-        Invoke(nameof(YeniMusteri), sonucBeklemeSuresi);
+        // Günün müşterileri bitti mi
+        bool memnun = sonuc == "MUKEMMEL" || sonuc == "IYI";
+        bool gunBitti = gunYoneticisi.MusteriBitti(memnun);
+
+        if (gunBitti) Invoke(nameof(GunuKapat), sonucBeklemeSuresi);
+        else Invoke(nameof(YeniMusteri), sonucBeklemeSuresi);
+    }
+
+    // Gün bitti: ortalığı temizle, gün sonu ekranını aç
+    void GunuKapat()
+    {
+        StopAllCoroutines();
+        transform.position = asilKonum;
+        transform.localScale = asilBoyut;
+
+        gorsel.enabled = false;
+        sabirCubugu.gameObject.SetActive(false);
+        if (baloncuk != null) baloncuk.SetActive(false);
+        sonucYazisi.text = "";
+        kahveDoldurma.Temizle();
+        if (muzik != null) muzik.KaranlikOlsun(false);
+
+        gunYoneticisi.GunSonuGoster();
     }
 
     // Yeni canavar seçilir ve kapının önünde beklemeye başlar
@@ -217,18 +257,19 @@ public class Musteri : MonoBehaviour
             return;
         }
 
-        // Rastgele bir canavar ve rastgele bir kahve
+        // Rastgele bir canavar, günün kahvelerinden rastgele bir kahve
         tur = canavarlar[Random.Range(0, canavarlar.Length)];
-        sabirSuresi = tur.sabirSuresi;
+        sabirSuresi = tur.sabirSuresi * gunYoneticisi.SabirCarpani;
         HalGoster(0);
-        siparis = siparisler[Random.Range(0, siparisler.Length)];
-        Debug.Log(tur.canavarAdi + " kapida, istedigi: " + siparis);
+        siparis = gunYoneticisi.RastgeleKahve();
+        Debug.Log(gunYoneticisi.GunNumarasi + ". gun: " + tur.canavarAdi + " kapida, istedigi: " + siparis);
 
         // Canavar henüz görünmüyor, kapıda bekliyor
         gorsel.enabled = false;
         sabirCubugu.gameObject.SetActive(false);
-        siparisYazisi.text = "Kapida biri var...";
-        sonucYazisi.text = "";
+        if (baloncuk != null) baloncuk.SetActive(false);
+        siparisYazisi.text = "";
+        sonucYazisi.text = "Kapıda biri var...";
 
         kapidaBekliyor = true;
         kapiSayac = kapiSabri;
@@ -248,22 +289,54 @@ public class Musteri : MonoBehaviour
         StartCoroutine(Titre());
     }
 
-    // Geçiş karelerini sırayla gösterir, sonunda yeni halin resmine geçer
+    // Hal değişimi: geçiş kareleri varsa onları oynatır,
+    // yoksa canavar siyaha kararır, yeni hale geçer ve siyahtan açılır.
     IEnumerator GecisOynat(int eskiHal, int yeniHal)
     {
         hal = yeniHal; // Oyun mantığı açısından hal hemen değişir
         if (muzik != null) muzik.KaranlikOlsun(hal >= karanlikMuzikHali);
+        if (gecisEfekti != null) gecisEfekti.Play();
 
+        // Tasarımcının çizdiği geçiş kareleri varsa onları oynat
         List<Sprite> kareler = tur.GecisKareleri(eskiHal, yeniHal);
-        foreach (Sprite kare in kareler)
+        if (kareler.Count > 0)
         {
-            if (kare == null) continue;
-            gorsel.sprite = kare;
-            gorsel.color = Color.white;
-            yield return new WaitForSeconds(tur.kareSuresi);
+            foreach (Sprite kare in kareler)
+            {
+                if (kare == null) continue;
+                gorsel.sprite = kare;
+                gorsel.color = Color.white;
+                yield return new WaitForSeconds(tur.kareSuresi);
+            }
+            HalGoster(yeniHal);
+            yield break;
         }
 
+        // Kare yoksa: siyaha karar
+        float sure = tur.siyahGecisSuresi;
+        Color baslangicRenk = gorsel.color;
+        float t = 0f;
+        while (t < sure)
+        {
+            t += Time.deltaTime;
+            gorsel.color = Color.Lerp(baslangicRenk, Color.black, t / sure);
+            yield return null;
+        }
+
+        // Tam siyahken yeni hale geç
         HalGoster(yeniHal);
+        Color hedefRenk = gorsel.color;
+        gorsel.color = Color.black;
+
+        // Siyahtan açıl
+        t = 0f;
+        while (t < sure)
+        {
+            t += Time.deltaTime;
+            gorsel.color = Color.Lerp(Color.black, hedefRenk, t / sure);
+            yield return null;
+        }
+        gorsel.color = hedefRenk;
     }
 
     // Hale uygun resmi göster, resim yoksa rengi değiştir
