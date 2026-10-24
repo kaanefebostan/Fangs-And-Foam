@@ -103,6 +103,7 @@ public class Musteri : MonoBehaviour
 
     void Update()
     {
+        if (DuraklatmaMenusu.Acik) return;
         if (kapidaBekliyor)
         {
             KapiBekle();

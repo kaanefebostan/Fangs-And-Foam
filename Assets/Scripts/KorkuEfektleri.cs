@@ -77,7 +77,7 @@ public class KorkuEfektleri : MonoBehaviour
 
     void Update()
     {
-        if (jumpscareOynuyor) return;
+        if (jumpscareOynuyor || DuraklatmaMenusu.Acik) return;
         float oran = mutluluk.Oran;
 
         // Mutluluk düştüyse: ekran sarsılsın, ışık titresin

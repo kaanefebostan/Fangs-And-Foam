@@ -47,6 +47,13 @@ public class KahveDoldurma : MonoBehaviour
     List<float> farklar = new List<float>();          // Her dökümün hedeften ne kadar saptığı
     List<GameObject> katmanlar = new List<GameObject>();
 
+    // Dökme animasyonu için bilgiler
+    public bool Dokuyor => dokuyor;
+    public Malzeme Secili => secili;
+    public float SiviUstY => bardakAlt + Mathf.Min(doluluk, 1f) * bardakBoyu;
+    public float BardakX => bardak.position.x;
+    public float BardakUstY => bardakAlt + bardakBoyu;
+
     void Awake()
     {
         // Eski Kahve kutusunu gizle, sadece kopyalamak için kullanacağız
@@ -63,7 +70,7 @@ public class KahveDoldurma : MonoBehaviour
 
         var fare = Mouse.current;
         var klavye = Keyboard.current;
-        if (!aktif || fare == null || klavye == null) return;
+        if (!aktif || fare == null || klavye == null || DuraklatmaMenusu.Acik) return;
 
         // Tarif kitabı açıkken kahve yapılamaz
         if (TarifKitabi.Acik)

@@ -15,6 +15,7 @@ public class TarifSayfasi
 public class TarifKitabi : MonoBehaviour
 {
     public static bool Acik { get; private set; }   // Diğer kodlar kitap açık mı diye bakar
+    public static int KapanisKaresi = -1;            // Kitap hangi karede kapandı (ESC çakışmasın)
 
     [Header("Sahnedeki objeler")]
     public GameObject kitapPaneli;       // Açılan büyük kitap (içindekilerle birlikte)
@@ -54,7 +55,7 @@ public class TarifKitabi : MonoBehaviour
 
     void Update()
     {
-        if (MenuYoneticisi.Acik) return;
+        if (MenuYoneticisi.Acik || DuraklatmaMenusu.Acik) return;
         var fare = Mouse.current;
         var klavye = Keyboard.current;
 
@@ -106,6 +107,7 @@ public class TarifKitabi : MonoBehaviour
     {
         Acik = false;
         kitapPaneli.SetActive(false);
+        KapanisKaresi = Time.frameCount;
     }
 
     void SayfaCevir(int yon)

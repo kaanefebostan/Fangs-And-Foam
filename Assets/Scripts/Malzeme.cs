@@ -8,4 +8,5 @@ public class Malzeme : MonoBehaviour
     public string malzemeAdi = "Kahve";   // Birebir şunlardan biri: Kahve, Sut, Su, Surup
     public bool dokulur = true;            // Kahve, Sut, Su için işaretli; Surup için işaretsiz
     public Color renk = new Color(0.3f, 0.15f, 0.05f); // Bardakta görünecek renk
+    public bool bardagaTasinsin = false;   // İşaretliyse dökerken bardağın üstüne gelip eğilir (şişeler için)
 }

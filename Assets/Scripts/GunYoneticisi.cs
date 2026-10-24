@@ -88,7 +88,7 @@ public class GunYoneticisi : MonoBehaviour
 
     void Update()
     {
-        if (!enterBekliyor || mutluluk.OyunBitti || Time.frameCount == acilisKaresi) return;
+        if (!enterBekliyor || mutluluk.OyunBitti || Time.frameCount == acilisKaresi || DuraklatmaMenusu.Acik) return;
 
         var klavye = Keyboard.current;
         if (klavye != null && klavye.enterKey.wasPressedThisFrame)
