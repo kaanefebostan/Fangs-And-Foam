@@ -10,12 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 073ad6979f7dc01428bf4ff3a045bea4, type: 3}
-  m_Name: Zombi
+  m_Name: Hanimabla
   m_EditorClassIdentifier: Assembly-CSharp::CanavarTuru
-  canavarAdi: Zombi
-  mutluResim: {fileID: 0}
+  canavarAdi: Hanimabla
+  mutluResim: {fileID: 21300000, guid: c4bfc00e9ecdd6f49b2ee95442ee07d5, type: 3}
   notrResim: {fileID: 0}
   kizginResim: {fileID: 0}
+  mutludanNotre: []
+  notrdenKizgina: []
+  kareSuresi: 0.08
   mutluRenk: {r: 0.55, g: 0, b: 1, a: 1}
   notrRenk: {r: 1, g: 0.8, b: 0.2, a: 1}
   kizginRenk: {r: 0.9, g: 0.1, b: 0.1, a: 1}

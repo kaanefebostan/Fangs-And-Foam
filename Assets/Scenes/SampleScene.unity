@@ -119,6 +119,54 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &247284470
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 247284471}
+  - component: {fileID: 247284472}
+  m_Layer: 0
+  m_Name: Muzik
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &247284471
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 247284470}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.89489, y: 0.12738, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &247284472
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 247284470}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e592873cc094b694fb7fda735db37da7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Muzik
+  normalMuzik: {fileID: 0}
+  karanlikMuzik: {fileID: 0}
+  sesSeviyesi: 0.6
+  gecisSuresi: 1.5
 --- !u!1 &296176444
 GameObject:
   m_ObjectHideFlags: 0
@@ -562,7 +610,7 @@ Transform:
   m_GameObject: {fileID: 436381770}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.6, y: 1.3, z: 0}
+  m_LocalPosition: {x: -1.6, y: 1.55, z: 0}
   m_LocalScale: {x: 1.5, y: 0.08, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1379,8 +1427,8 @@ Transform:
   m_GameObject: {fileID: 1243743009}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.6, y: 0.1, z: 0}
-  m_LocalScale: {x: 1.92, y: 2.08, z: 1}
+  m_LocalPosition: {x: -1.6, y: -1.2, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -1399,6 +1447,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Musteri
   kahveDoldurma: {fileID: 315017135}
   mutluluk: {fileID: 1438046011}
+  muzik: {fileID: 247284472}
+  karanlikMuzikHali: 2
   sabirCubugu: {fileID: 436381772}
   siparisYazisi: {fileID: 578946959}
   sonucYazisi: {fileID: 296176445}
@@ -2614,3 +2664,4 @@ SceneRoots:
   - {fileID: 1438046013}
   - {fileID: 1551902552}
   - {fileID: 1367991731}
+  - {fileID: 247284471}

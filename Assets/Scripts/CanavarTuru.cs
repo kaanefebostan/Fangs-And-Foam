@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 // Bir canavar türünün ayar kartı. Kod bilmeden Inspector'dan doldurulur.
@@ -11,6 +12,11 @@ public class CanavarTuru : ScriptableObject
     public Sprite mutluResim;
     public Sprite notrResim;
     public Sprite kizginResim;
+
+    [Header("Geçiş animasyonları (kareleri sırayla sürükle, boş kalabilir)")]
+    public Sprite[] mutludanNotre;     // Mutlu -> nötr geçiş kareleri
+    public Sprite[] notrdenKizgina;    // Nötr -> kızgın geçiş kareleri
+    public float kareSuresi = 0.08f;   // Her kare kaç saniye görünür
 
     [Header("Resim yokken kullanılacak renkler")]
     public Color mutluRenk = new Color(0.55f, 0f, 1f);     // mor
@@ -37,5 +43,37 @@ public class CanavarTuru : ScriptableObject
 
         if (liste == null || liste.Length == 0) return kahve;
         return liste[Random.Range(0, liste.Length)];
+    }
+
+    // Bir halden diğerine geçerken oynatılacak kareleri sırasıyla verir.
+    // Kötüleşirken düz, iyileşirken tersten oynatır.
+    public List<Sprite> GecisKareleri(int eskiHal, int yeniHal)
+    {
+        List<Sprite> kareler = new List<Sprite>();
+
+        if (eskiHal < yeniHal)
+        {
+            // Kötüleşiyor: mutlu -> nötr -> kızgın
+            if (eskiHal <= 0 && yeniHal >= 1 && mutludanNotre != null) kareler.AddRange(mutludanNotre);
+            if (eskiHal <= 1 && yeniHal >= 2 && notrdenKizgina != null) kareler.AddRange(notrdenKizgina);
+        }
+        else
+        {
+            // İyileşiyor: kızgın -> nötr -> mutlu (kareler tersten)
+            if (eskiHal >= 2 && yeniHal <= 1 && notrdenKizgina != null)
+            {
+                List<Sprite> ters = new List<Sprite>(notrdenKizgina);
+                ters.Reverse();
+                kareler.AddRange(ters);
+            }
+            if (eskiHal >= 1 && yeniHal <= 0 && mutludanNotre != null)
+            {
+                List<Sprite> ters = new List<Sprite>(mutludanNotre);
+                ters.Reverse();
+                kareler.AddRange(ters);
+            }
+        }
+
+        return kareler;
     }
 }

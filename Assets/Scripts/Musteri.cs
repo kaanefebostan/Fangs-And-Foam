@@ -9,6 +9,8 @@ public class Musteri : MonoBehaviour
     [Header("Sahnedeki objeler")]
     public KahveDoldurma kahveDoldurma; // Kahve makinesi
     public Mutluluk mutluluk;           // Kafenin mutluluk çubuğu
+    public Muzik muzik;                 // Kafe müziği
+    public int karanlikMuzikHali = 2;   // Hangi halde karanlık müzik başlasın (1 = nötr, 2 = kızgın)
     public Transform sabirCubugu;       // Yeşil sabır çubuğu
     public TMP_Text siparisYazisi;      // Müşterinin söylediği cümle
     public TMP_Text sonucYazisi;        // Ortadaki büyük sonuç yazısı
@@ -162,6 +164,7 @@ public class Musteri : MonoBehaviour
     void HalGoster(int yeniHal)
     {
         hal = yeniHal;
+        if (muzik != null) muzik.KaranlikOlsun(hal >= karanlikMuzikHali);
 
         Sprite resim;
         Color renk;
