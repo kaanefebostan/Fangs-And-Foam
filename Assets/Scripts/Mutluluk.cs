@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using TMPro;
 
-// Kafenin mutluluk çubuğu. 0 olunca karanlık bir "oyun bitti" ekranı belirir,
+// Kafenin mutluluk çubuğu. 0 olunca jumpscare, sonra karanlık bir "oyun bitti" ekranı.
 // Enter ile oyun yeniden başlar.
 public class Mutluluk : MonoBehaviour
 {
@@ -13,6 +13,7 @@ public class Mutluluk : MonoBehaviour
     public TMP_Text oyunBittiYazisi;    // Ortadaki büyük yazı
     public SpriteRenderer karartma;     // Tüm ekranı kaplayan siyah kutu
     public SpriteRenderer bant;         // Yazının arkasındaki siyah şerit
+    public KorkuEfektleri korku;        // Jumpscare'i oynatır (boş kalabilir)
 
     [Header("Ayarlar")]
     public float baslangic = 70f;       // Oyun başındaki mutluluk
@@ -93,9 +94,11 @@ public class Mutluluk : MonoBehaviour
         }
     }
 
-    // Ekran yavaşça kararır, şerit ve yazı belirir, yazı hafifçe büyür
+    // Önce jumpscare, sonra ekran yavaşça kararır, şerit ve yazı belirir
     IEnumerator OyunSonuEkrani()
     {
+        if (korku != null) yield return StartCoroutine(korku.Jumpscare());
+
         if (bitisSesi != null) AudioSource.PlayClipAtPoint(bitisSesi, Camera.main.transform.position);
 
         oyunBittiYazisi.text = bitisMetni;

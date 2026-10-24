@@ -12,6 +12,7 @@ public class Sesler : MonoBehaviour
     public AudioClip zil;
     public AudioClip posterTiklama;
     public AudioClip konusma;     // Harf harf yazarken çalan kısa ses
+    public AudioClip jumpscare;   // Mutluluk bitince çalan çığlık
 
     [Header("Ayarlar")]
     [Range(0f, 1f)] public float sesSeviyesi = 0.8f;
@@ -41,6 +42,12 @@ public class Sesler : MonoBehaviour
     public static void Zil() { if (Ornek != null) Cal(Ornek.zil); }
     public static void PosterTiklama() { if (Ornek != null) Cal(Ornek.posterTiklama); }
     public static void Konusma() { if (Ornek != null) Cal(Ornek.konusma); }
+
+    public static void Jumpscare()
+    {
+        if (Ornek == null || Ornek.jumpscare == null) return;
+        Ornek.tekSeferlik.PlayOneShot(Ornek.jumpscare, 1f); // Jumpscare her zaman tam ses
+    }
 
     public static void DokmeBasla()
     {

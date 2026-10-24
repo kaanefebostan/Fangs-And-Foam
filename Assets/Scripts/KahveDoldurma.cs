@@ -6,7 +6,7 @@ using TMPro;
 // Kahve hazırlama sistemi.
 // Makineye / şişeye TIKLA: malzemeyi seç.
 // BOSLUK basılı tut: seçili malzemeyi dök (kahve, süt, su), kırmızı çizgide bırak.
-// Şurup seçiliyken BARDAGA TIKLA: şurup eklenir.
+// Şurup seçiliyken BARDAGA TIKLA: şurup eklenir (bardak sarı yanıp sönerek bunu hatırlatır).
 // E: servis et.  R: bardağı dök, baştan başla.
 public class KahveDoldurma : MonoBehaviour
 {
@@ -14,6 +14,7 @@ public class KahveDoldurma : MonoBehaviour
     public Transform kahve;          // Eski Kahve kutusu: katmanlar bunun kopyası olarak oluşur
     public Transform hedefCizgi;     // Kırmızı hedef çizgisi
     public Transform bardak;         // Bardak (şurup eklemek için tıklanır)
+    public SpriteRenderer bardakCerceve; // Bardağın arkasındaki sarı çerçeve (boş kalabilir)
     public Musteri musteri;          // Kahveyi bekleyen müşteri
     public TMP_Text bardakYazisi;    // Bardakta ne olduğunu gösteren yazı
 
@@ -21,6 +22,10 @@ public class KahveDoldurma : MonoBehaviour
     public float dolmaHizi = 0.5f;   // Saniyede bardağın ne kadarı dolar
     public float bardakAlt = -0.8f;  // Bardağın alt kenarının yüksekliği
     public float bardakBoyu = 0.5f;  // Bardağın yüksekliği
+
+    [Header("Bardağa tıkla vurgusu")]
+    public Color vurguRengi = new Color(1f, 0.85f, 0.1f); // Sarı
+    public float vurguHizi = 4f;                          // Ne kadar hızlı yanıp söner
 
     // Dökülen malzemelerin isimleri
     static readonly string[] dokulenler = { "Kahve", "Sut", "Su" };
@@ -35,6 +40,9 @@ public class KahveDoldurma : MonoBehaviour
     int dokulecekSayisi;      // Tarifte kaç dökülen malzeme var
     float sonHedef;           // Bardağın en son dolması gereken seviye
 
+    SpriteRenderer bardakGorsel;
+    Color bardakNormalRenk;
+
     List<string> icindekiler = new List<string>();   // Bardağa konanlar
     List<float> farklar = new List<float>();          // Her dökümün hedeften ne kadar saptığı
     List<GameObject> katmanlar = new List<GameObject>();
@@ -43,10 +51,16 @@ public class KahveDoldurma : MonoBehaviour
     {
         // Eski Kahve kutusunu gizle, sadece kopyalamak için kullanacağız
         kahve.gameObject.SetActive(false);
+
+        bardakGorsel = bardak.GetComponent<SpriteRenderer>();
+        if (bardakGorsel != null) bardakNormalRenk = bardakGorsel.color;
+        if (bardakCerceve != null) bardakCerceve.gameObject.SetActive(false);
     }
 
     void Update()
     {
+        BardakVurgusu();
+
         var fare = Mouse.current;
         var klavye = Keyboard.current;
         if (!aktif || fare == null || klavye == null) return;
@@ -90,6 +104,27 @@ public class KahveDoldurma : MonoBehaviour
             else
             {
                 DokmeyiBitir(); // Boşluk bırakıldı
+            }
+        }
+    }
+
+    // Şurup gibi "bardağa tıklanarak eklenen" bir şey seçiliyse bardak sarı yanıp söner
+    void BardakVurgusu()
+    {
+        bool vurgula = aktif && secili != null && !secili.dokulur && !TarifKitabi.Acik;
+        float t = Mathf.PingPong(Time.time * vurguHizi, 1f);
+
+        if (bardakGorsel != null)
+            bardakGorsel.color = vurgula ? Color.Lerp(bardakNormalRenk, vurguRengi, t * 0.6f) : bardakNormalRenk;
+
+        if (bardakCerceve != null)
+        {
+            bardakCerceve.gameObject.SetActive(vurgula);
+            if (vurgula)
+            {
+                Color c = vurguRengi;
+                c.a = 0.3f + 0.7f * t;
+                bardakCerceve.color = c;
             }
         }
     }
@@ -143,6 +178,7 @@ public class KahveDoldurma : MonoBehaviour
             if (secili != null && !secili.dokulur)
             {
                 icindekiler.Add(secili.malzemeAdi);
+                secili = null;   // Eklendi, vurgu söner (iki kere eklenmesin)
                 YaziyiGuncelle();
             }
             return;
@@ -242,7 +278,8 @@ public class KahveDoldurma : MonoBehaviour
     {
         if (bardakYazisi == null) return;
         string seciliAd = secili != null ? secili.malzemeAdi : "-";
-        bardakYazisi.text = "Seçili: " + seciliAd + "\n" + string.Join(" + ", icindekiler);
+        string ipucu = (secili != null && !secili.dokulur) ? "\n<size=80%>Bardağa tıkla!</size>" : "";
+        bardakYazisi.text = "Seçili: " + seciliAd + "\n" + string.Join(" + ", icindekiler) + ipucu;
     }
 
     void ServisEt()

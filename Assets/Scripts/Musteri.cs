@@ -74,6 +74,8 @@ public class Musteri : MonoBehaviour
         YaziTemizle();
         sonucYazisi.text = "";
     }
+    // Müşteri içeride kahve bekliyor mu (korku efektleri için)
+    public bool IcerideBekliyor => bekliyor;
 
     // GunYoneticisi yeni gün başlayınca çağırır
     public void GunuBaslat()
@@ -249,7 +251,7 @@ public class Musteri : MonoBehaviour
         // Mutluluk bittiyse yeni müşteri gelmesin
         if (mutluluk.OyunBitti)
         {
-            kahveDoldurma.Durdur();
+            kahveDoldurma.Temizle();
             sonucYazisi.text = "";
             return;
         }
