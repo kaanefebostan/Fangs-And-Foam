@@ -38,6 +38,22 @@ public class Musteri : MonoBehaviour
     public float titremeSuresi = 0.3f;   // Kaç saniye titrer
     public float titremeGucu = 0.06f;    // Ne kadar sert titrer
 
+    [Header("Canlılık")]
+    public float nefesHizi = 0.6f;       // Saniyede kaç kez nefes alır
+    public float nefesMiktari = 0.012f;  // Nefes alırken ne kadar uzar (0.012 = %1.2)
+    public float girisSuresi = 0.35f;    // İçeri girerken belirme süresi
+    public float cikisSuresi = 0.35f;    // Giderken kaybolma süresi
+    public float girisKaymasi = 0.15f;   // Girerken aşağıdan ne kadar yukarı kayar
+
+    [Header("Sabır barı resmi (boş kalabilir)")]
+    public SpriteRenderer sabirResmi;     // Yüzlü bar resmi (Visible Inside Mask)
+    public GameObject sabirArkaPlani;     // Barın arkadaki soluk kopyası
+
+    [Header("Sabır çubuğu renkleri (bar resmi yoksa kullanılır)")]
+    public Color sabirIyiRenk = new Color(0.2f, 0.9f, 0.2f);   // yeşil
+    public Color sabirOrtaRenk = new Color(1f, 0.8f, 0.2f);    // sarı
+    public Color sabirKotuRenk = new Color(0.9f, 0.1f, 0.1f);  // kırmızı
+
     [Header("Soru butonları")]
     public SpriteRenderer cevapButonu1;  // Birinci cevap butonu (Box Collider 2D olmalı)
     public SpriteRenderer cevapButonu2;  // İkinci cevap butonu (Box Collider 2D olmalı)
@@ -65,6 +81,14 @@ public class Musteri : MonoBehaviour
 
     const string GuvenAnahtari = "kafeGuveni";
 
+    // Ortadaki sonuç yazısının renkli mesajları
+    const string YesilRenk = "#7CFC6A";
+    const string SariRenk = "#FFD34D";
+    const string KirmiziRenk = "#FF4A3D";
+    const string GuvenArttiMesaji = "<color=" + YesilRenk + ">GÜVEN ARTTI!</color>";
+    const string GuvenAzaldiMesaji = "<color=" + KirmiziRenk + ">GÜVEN AZALDI!</color>";
+    const string BeklettinMesaji = "<color=" + KirmiziRenk + ">ÇOK BEKLETTİN!</color>";
+
     SpriteRenderer gorsel;
     Daktilo daktilo;
     Vector3 asilKonum;
@@ -73,6 +97,9 @@ public class Musteri : MonoBehaviour
     CanavarTuru tur;       // Şu anki canavar
     Sprite halResmi;       // Şu anki halin normal (ağzı kapalı) resmi
     bool gecisOynuyor = false;
+    bool titriyor = false;          // Titre animasyonu oynuyor mu
+    bool animasyonOynuyor = false;  // Giriş/çıkış animasyonu oynuyor mu
+    SpriteRenderer sabirGorsel;
     float sabirSuresi = 20f;
     float agizSayac;
     int sonAgizKaresi = -1;
@@ -88,7 +115,8 @@ public class Musteri : MonoBehaviour
     Soru aktifSoru;
     bool butonlarGorunuyor = false;
     float tepkiSayac;
-    Dictionary<CanavarTuru, List<int>> kalanSorular = new Dictionary<CanavarTuru, List<int>>();
+    HashSet<string> sorulanlar = new HashSet<string>(); // Bu oyunda sorulmuş sorular ("kartAdi:sira")
+    const string SorulanlarAnahtari = "sorulanSorular";
 
     // Kafenin güveni (0 - 100)
     float guven = 100f;
@@ -119,10 +147,11 @@ public class Musteri : MonoBehaviour
 
         cubukTamBoy = sabirCubugu.localScale.x;
         cubukSolKenar = sabirCubugu.position.x - cubukTamBoy / 2f;
+        sabirGorsel = sabirCubugu.GetComponent<SpriteRenderer>();
 
         // Gün başlayana kadar ortada kimse yok
         gorsel.enabled = false;
-        sabirCubugu.gameObject.SetActive(false);
+        SabirGoster(false);
         if (baloncuk != null) baloncuk.SetActive(false);
         ButonlariGizle();
         OyuncuKutusunuKapat();
@@ -152,7 +181,7 @@ public class Musteri : MonoBehaviour
         saldiriyor = false;
         saldiriAsama = 0;
         OyuncuKutusunuKapat();
-        StopAllCoroutines();
+        KorutinleriDurdur();
         gecisOynuyor = false;
         bekleyenCumle = null;
         asama = Asama.Yok;
@@ -160,7 +189,7 @@ public class Musteri : MonoBehaviour
         transform.position = asilKonum;
         transform.localScale = asilBoyut;
         gorsel.enabled = false;
-        sabirCubugu.gameObject.SetActive(false);
+        SabirGoster(false);
         if (baloncuk != null) baloncuk.SetActive(false);
         YaziTemizle();
     }
@@ -186,6 +215,14 @@ public class Musteri : MonoBehaviour
         kahveDoldurma.Temizle();
         YaziTemizle();
         sonucYazisi.text = "";
+
+        // Canavar gitmek üzereyse bile geri gelsin, net görünsün
+        KorutinleriDurdur();
+        gecisOynuyor = false;
+        transform.position = asilKonum;
+        transform.localScale = asilBoyut;
+        gorsel.enabled = true;
+        HalGoster(hal);
 
         // 1. adım: oyuncu konuşur (alttaki kutu)
         saldiriAsama = 1;
@@ -279,8 +316,17 @@ public class Musteri : MonoBehaviour
     public void GunuBaslat()
     {
         // Yeni oyunda güven sıfırdan başlar, sonraki günlerde kaldığı yerden devam eder
-        if (gunYoneticisi.GunNumarasi <= 1) guven = 100f;
-        else guven = PlayerPrefs.GetFloat(GuvenAnahtari, 100f);
+        if (gunYoneticisi.GunNumarasi <= 1)
+        {
+            guven = 100f;
+            sorulanlar.Clear();
+            PlayerPrefs.DeleteKey(SorulanlarAnahtari);
+        }
+        else
+        {
+            guven = PlayerPrefs.GetFloat(GuvenAnahtari, 100f);
+            SorulanlariYukle();
+        }
         GuvenYazisiniGuncelle();
 
         YeniMusteri();
@@ -441,13 +487,14 @@ public class Musteri : MonoBehaviour
         if (tur.girisSesi != null) Sesler.Oynat(tur.girisSesi);
 
         gorsel.enabled = true;
-        sabirCubugu.gameObject.SetActive(true);
+        SabirGoster(true);
         if (baloncuk != null) baloncuk.SetActive(true);
 
         HalGoster(kizgin ? 2 : 0);
         if (kizgin) StartCoroutine(Titre());
+        else StartCoroutine(GirisAnimasyonu());
 
-        sonucYazisi.text = kizgin ? "ÇOK BEKLETTİN!" : "";
+        sonucYazisi.text = kizgin ? BeklettinMesaji : "";
         if (kizgin) Invoke(nameof(BeklettinYazisiniSil), 1.5f);
 
         kalanSabir = sabirSuresi;
@@ -485,32 +532,49 @@ public class Musteri : MonoBehaviour
     // ---------- SORU SİSTEMİ ----------
 
     // Bu canavarın henüz sorulmamış sorularından birini seçer (ya da soru sormaz)
+    // Bu canavarın bu oyunda HİÇ sorulmamış sorularından birini seçer.
+    // Her soru bir oyunda sadece bir kez sorulur (günler arası da hatırlanır).
     Soru SoruSec()
     {
         if (tur.sorular == null || tur.sorular.Length == 0) return null;
         if (Random.value > soruIhtimali) return null;
 
-        if (!kalanSorular.TryGetValue(tur, out List<int> kalan))
+        List<int> kalan = new List<int>();
+        for (int i = 0; i < tur.sorular.Length; i++)
         {
-            kalan = new List<int>();
-            kalanSorular[tur] = kalan;
+            Soru s = tur.sorular[i];
+            if (s == null || string.IsNullOrEmpty(s.soru)) continue;
+            if (sorulanlar.Contains(SoruAnahtari(i))) continue;
+            kalan.Add(i);
         }
+        if (kalan.Count == 0) return null; // Hepsi soruldu, artık soru yok
 
-        // Hepsi sorulduysa baştan doldur
-        if (kalan.Count == 0)
-        {
-            for (int i = 0; i < tur.sorular.Length; i++)
-            {
-                Soru s = tur.sorular[i];
-                if (s != null && !string.IsNullOrEmpty(s.soru)) kalan.Add(i);
-            }
-        }
-        if (kalan.Count == 0) return null;
-
-        int sira = Random.Range(0, kalan.Count);
-        int secilen = kalan[sira];
-        kalan.RemoveAt(sira);
+        int secilen = kalan[Random.Range(0, kalan.Count)];
+        sorulanlar.Add(SoruAnahtari(secilen));
+        SorulanlariKaydet();
         return tur.sorular[secilen];
+    }
+
+    string SoruAnahtari(int sira)
+    {
+        return tur.name + ":" + sira;
+    }
+
+    void SorulanlariKaydet()
+    {
+        PlayerPrefs.SetString(SorulanlarAnahtari, string.Join("|", sorulanlar));
+        PlayerPrefs.Save();
+    }
+
+    void SorulanlariYukle()
+    {
+        sorulanlar.Clear();
+        string kayit = PlayerPrefs.GetString(SorulanlarAnahtari, "");
+        if (string.IsNullOrEmpty(kayit)) return;
+        foreach (string parca in kayit.Split('|'))
+        {
+            if (!string.IsNullOrEmpty(parca)) sorulanlar.Add(parca);
+        }
     }
 
     void SoruAsamasi()
@@ -568,7 +632,7 @@ public class Musteri : MonoBehaviour
             return;
         }
 
-        sonucYazisi.text = iyi ? "GÜVEN ARTTI!" : "GÜVEN AZALDI!";
+        sonucYazisi.text = iyi ? GuvenArttiMesaji : GuvenAzaldiMesaji;
         CancelInvoke(nameof(GuvenMesajiniSil));
         Invoke(nameof(GuvenMesajiniSil), 1.5f);
 
@@ -591,7 +655,7 @@ public class Musteri : MonoBehaviour
 
     void GuvenMesajiniSil()
     {
-        if (sonucYazisi.text == "GÜVEN ARTTI!" || sonucYazisi.text == "GÜVEN AZALDI!") sonucYazisi.text = "";
+        if (sonucYazisi.text == GuvenArttiMesaji || sonucYazisi.text == GuvenAzaldiMesaji) sonucYazisi.text = "";
     }
 
     void ButonlariGoster()
@@ -652,7 +716,7 @@ public class Musteri : MonoBehaviour
 
     void BeklettinYazisiniSil()
     {
-        if (sonucYazisi.text == "ÇOK BEKLETTİN!") sonucYazisi.text = "";
+        if (sonucYazisi.text == BeklettinMesaji) sonucYazisi.text = "";
     }
 
     // Kahve makinesi servis edilince bunu çağırır
@@ -691,7 +755,7 @@ public class Musteri : MonoBehaviour
         bekliyor = false;
         bekleyenCumle = null;
         CancelInvoke(nameof(GuvenMesajiniSil));
-        sonucYazisi.text = mesaj;
+        sonucYazisi.text = Renklendir(mesaj, sonuc);
         YaziTemizle();
         if (baloncuk != null) baloncuk.SetActive(false);
         if (halResmi != null && !gecisOynuyor) gorsel.sprite = halResmi; // ağız açık kalmasın
@@ -707,6 +771,9 @@ public class Musteri : MonoBehaviour
             return;
         }
 
+        // Canavar sonuç ekranda kaldıktan sonra yavaşça kaybolur
+        StartCoroutine(CikisAnimasyonu(sonucBeklemeSuresi - cikisSuresi));
+
         // Günün müşterileri bitti mi
         bool memnun = sonuc == "MUKEMMEL" || sonuc == "IYI";
         bool gunBitti = gunYoneticisi.MusteriBitti(memnun);
@@ -718,7 +785,7 @@ public class Musteri : MonoBehaviour
     // Gün bitti: ortalığı temizle, güveni kaydet, gün sonu ekranını aç
     void GunuKapat()
     {
-        StopAllCoroutines();
+        KorutinleriDurdur();
         gecisOynuyor = false;
         bekleyenCumle = null;
         asama = Asama.Yok;
@@ -727,7 +794,7 @@ public class Musteri : MonoBehaviour
         transform.localScale = asilBoyut;
 
         gorsel.enabled = false;
-        sabirCubugu.gameObject.SetActive(false);
+        SabirGoster(false);
         if (baloncuk != null) baloncuk.SetActive(false);
         sonucYazisi.text = "";
         kahveDoldurma.Temizle();
@@ -783,7 +850,7 @@ public class Musteri : MonoBehaviour
     void YeniMusteri()
     {
         // Yarıda kalan animasyon ya da titreme varsa düzelt
-        StopAllCoroutines();
+        KorutinleriDurdur();
         gecisOynuyor = false;
         bekleyenCumle = null;
         asama = Asama.Yok;
@@ -811,7 +878,7 @@ public class Musteri : MonoBehaviour
 
         // Canavar henüz görünmüyor, kapıda bekliyor
         gorsel.enabled = false;
-        sabirCubugu.gameObject.SetActive(false);
+        SabirGoster(false);
         if (baloncuk != null) baloncuk.SetActive(false);
         YaziTemizle();
         sonucYazisi.text = "Kapıda biri var...";
@@ -828,7 +895,7 @@ public class Musteri : MonoBehaviour
 
         int eskiHal = hal;
         if (yeniHal == 2 && tur.kizginSesi != null) Sesler.Oynat(tur.kizginSesi);
-        StopAllCoroutines();
+        KorutinleriDurdur();
         gecisOynuyor = false;
         transform.position = asilKonum;
         transform.localScale = asilBoyut;
@@ -923,6 +990,7 @@ public class Musteri : MonoBehaviour
     // Kısa süre titreyip büyüyerek geçişi hissettirir
     IEnumerator Titre()
     {
+        titriyor = true;
         float t = 0f;
         while (t < titremeSuresi)
         {
@@ -934,6 +1002,89 @@ public class Musteri : MonoBehaviour
         }
         transform.position = asilKonum;
         transform.localScale = asilBoyut;
+        titriyor = false;
+    }
+
+    // Sabır barını (ve arkasındaki soluk kopyayı) gösterir ya da gizler
+    void SabirGoster(bool goster)
+    {
+        sabirCubugu.gameObject.SetActive(goster);
+        if (sabirArkaPlani != null) sabirArkaPlani.SetActive(goster);
+    }
+
+    // Bütün animasyonları durdurur ve bayraklarını sıfırlar
+    void KorutinleriDurdur()
+    {
+        StopAllCoroutines();
+        titriyor = false;
+        animasyonOynuyor = false;
+    }
+
+    // Canavar dururken hafifçe nefes alır (ayakları yerde kalır, boyu hafifçe uzayıp kısalır)
+    void LateUpdate()
+    {
+        if (gorsel == null || !gorsel.enabled || titriyor || animasyonOynuyor) return;
+        float nefes = 1f + Mathf.Sin(Time.time * nefesHizi * 2f * Mathf.PI) * nefesMiktari;
+        transform.localScale = new Vector3(asilBoyut.x, asilBoyut.y * nefes, asilBoyut.z);
+    }
+
+    // İçeri girerken: aşağıdan yukarı kayarak ve belirerek gelir
+    IEnumerator GirisAnimasyonu()
+    {
+        animasyonOynuyor = true;
+        transform.localScale = asilBoyut;
+        Color renk = gorsel.color;
+        float t = 0f;
+        while (t < girisSuresi)
+        {
+            t += Time.deltaTime;
+            float o = Mathf.Clamp01(t / girisSuresi);
+            float yumusak = 1f - (1f - o) * (1f - o); // hızlı başla, yavaşça otur
+            transform.position = asilKonum + Vector3.down * girisKaymasi * (1f - yumusak);
+            Color c = renk;
+            c.a = renk.a * yumusak;
+            gorsel.color = c;
+            yield return null;
+        }
+        transform.position = asilKonum;
+        gorsel.color = renk;
+        animasyonOynuyor = false;
+    }
+
+    // Giderken: biraz bekler, sonra aşağı kayarak kaybolur
+    IEnumerator CikisAnimasyonu(float bekleme)
+    {
+        if (bekleme > 0f) yield return new WaitForSeconds(bekleme);
+
+        animasyonOynuyor = true;
+        transform.localScale = asilBoyut;
+        Color renk = gorsel.color;
+        float t = 0f;
+        while (t < cikisSuresi)
+        {
+            t += Time.deltaTime;
+            float o = Mathf.Clamp01(t / cikisSuresi);
+            transform.position = asilKonum + Vector3.down * girisKaymasi * o * o;
+            Color c = renk;
+            c.a = renk.a * (1f - o);
+            gorsel.color = c;
+            yield return null;
+        }
+        gorsel.enabled = false;
+        SabirGoster(false);
+        transform.position = asilKonum;
+        gorsel.color = renk;
+        animasyonOynuyor = false;
+    }
+
+    // Sonuca göre yazıyı renklendirir: iyi yeşil, orta sarı, kötü kırmızı
+    string Renklendir(string mesaj, string sonuc)
+    {
+        string renk;
+        if (sonuc == "MUKEMMEL") renk = YesilRenk;
+        else if (sonuc == "IYI") renk = SariRenk;
+        else renk = KirmiziRenk;
+        return "<color=" + renk + ">" + mesaj + "</color>";
     }
 
     void CubuguCiz()
@@ -947,5 +1098,26 @@ public class Musteri : MonoBehaviour
         Vector3 p = sabirCubugu.position;
         p.x = cubukSolKenar + s.x / 2f;
         sabirCubugu.position = p;
+
+        // Renk: dolu = yeşil, yarı = sarı, az = kırmızı. Çok azalınca yanıp söner.
+        if (sabirGorsel != null)
+        {
+            Color renk = oran > 0.5f
+                ? Color.Lerp(sabirOrtaRenk, sabirIyiRenk, (oran - 0.5f) * 2f)
+                : Color.Lerp(sabirKotuRenk, sabirOrtaRenk, oran * 2f);
+            if (oran < 0.25f && bekliyor)
+            {
+                float yanip = Mathf.PingPong(Time.time * 4f, 1f);
+                renk = Color.Lerp(renk, Color.white, yanip * 0.6f);
+            }
+            sabirGorsel.color = renk;
+        }
+
+        // Yüzlü bar resmi: sabır çok azalınca yanıp söner
+        if (sabirResmi != null)
+        {
+            float yanip = (oran < 0.25f && bekliyor) ? Mathf.PingPong(Time.time * 4f, 1f) : 0f;
+            sabirResmi.color = new Color(1f, 1f, 1f, 1f - 0.5f * yanip);
+        }
     }
 }

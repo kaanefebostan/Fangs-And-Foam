@@ -32,6 +32,10 @@ public class Mutluluk : MonoBehaviour
     public float belirmeSuresi = 2.5f;   // Ekranın kararıp yazının belirmesi kaç saniye sürer
     public AudioClip bitisSesi;          // İsteğe bağlı: gong / boom sesi
 
+    [Header("Çubuk animasyonu")]
+    public float cubukHizi = 60f;        // Çubuk saniyede kaç puan dolar/boşalır
+    public float parlamaSuresi = 0.3f;   // Değişince çubuk kısa süre parlar
+
     [Header("Renkler")]
     public Color iyiRenk = new Color(0.2f, 0.9f, 0.2f);   // yeşil
     public Color ortaRenk = new Color(1f, 0.8f, 0.2f);    // sarı
@@ -45,7 +49,9 @@ public class Mutluluk : MonoBehaviour
     float cubukSolKenar;
     SpriteRenderer cubukGorsel;
     bool yenidenBaslayabilir = false;
-    string ozelMetin;   // Saldırıyla biterse "KAFE KAPANDI" yerine yazılacak metin
+    string ozelMetin;
+    float gosterilen;   // Çubukta şu an görünen değer (gerçek değere doğru yavaşça gider)
+    float parlama;      // Parlamanın kalan süresi   // Saldırıyla biterse "KAFE KAPANDI" yerine yazılacak metin
 
     void Awake()
     {
@@ -54,6 +60,7 @@ public class Mutluluk : MonoBehaviour
         cubukGorsel = cubuk.GetComponent<SpriteRenderer>();
 
         Deger = baslangic;
+        gosterilen = Deger;
         if (oyunBittiYazisi != null) oyunBittiYazisi.text = "";
         SaydamlikAyarla(karartma, 0f);
         SaydamlikAyarla(bant, 0f);
@@ -62,6 +69,20 @@ public class Mutluluk : MonoBehaviour
 
     void Update()
     {
+        // Çubuk gerçek değere doğru yavaşça gider, değişince kısa süre parlar
+        bool ciz = false;
+        if (!Mathf.Approximately(gosterilen, Deger))
+        {
+            gosterilen = Mathf.MoveTowards(gosterilen, Deger, cubukHizi * Time.deltaTime);
+            ciz = true;
+        }
+        if (parlama > 0f)
+        {
+            parlama -= Time.deltaTime;
+            ciz = true;
+        }
+        if (ciz) Ciz();
+
         // Oyun sonu ekranı tamamlandıysa Enter ile baştan başla
         var klavye = Keyboard.current;
         if (OyunBitti && yenidenBaslayabilir && klavye != null && klavye.enterKey.wasPressedThisFrame)
@@ -86,6 +107,7 @@ public class Mutluluk : MonoBehaviour
         if (OyunBitti) return;
 
         Deger = Mathf.Clamp(Deger + miktar, 0f, enFazla);
+        parlama = parlamaSuresi;
         Ciz();
 
         if (Deger <= 0f)
@@ -148,9 +170,11 @@ public class Mutluluk : MonoBehaviour
 
     void Ciz()
     {
+        float oran = Mathf.Clamp01(gosterilen / enFazla);
+
         // Çubuğun boyu
         Vector3 s = cubuk.localScale;
-        s.x = cubukTamBoy * Oran;
+        s.x = cubukTamBoy * oran;
         cubuk.localScale = s;
 
         Vector3 p = cubuk.position;
@@ -158,7 +182,12 @@ public class Mutluluk : MonoBehaviour
         cubuk.position = p;
 
         // Çubuğun rengi: yüksekse yeşil, ortadaysa sarı, düşükse kırmızı
-        if (Oran > 0.5f) cubukGorsel.color = Color.Lerp(ortaRenk, iyiRenk, (Oran - 0.5f) * 2f);
-        else cubukGorsel.color = Color.Lerp(kotuRenk, ortaRenk, Oran * 2f);
+        Color renk;
+        if (oran > 0.5f) renk = Color.Lerp(ortaRenk, iyiRenk, (oran - 0.5f) * 2f);
+        else renk = Color.Lerp(kotuRenk, ortaRenk, oran * 2f);
+
+        // Yeni değiştiyse beyaza doğru parlasın
+        if (parlama > 0f && parlamaSuresi > 0f) renk = Color.Lerp(renk, Color.white, parlama / parlamaSuresi * 0.7f);
+        cubukGorsel.color = renk;
     }
 }
