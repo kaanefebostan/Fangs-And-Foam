@@ -51,6 +51,13 @@ public class KahveDoldurma : MonoBehaviour
         var klavye = Keyboard.current;
         if (!aktif || fare == null || klavye == null) return;
 
+        // Tarif kitabı açıkken kahve yapılamaz
+        if (TarifKitabi.Acik)
+        {
+            if (dokuyor) DokmeyiBitir();
+            return;
+        }
+
         // Fareyle bir şeye tıklandı mı
         if (fare.leftButton.wasPressedThisFrame) TiklamayaBak(fare);
 

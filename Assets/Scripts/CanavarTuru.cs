@@ -13,6 +13,11 @@ public class CanavarTuru : ScriptableObject
     public Sprite notrResim;
     public Sprite kizginResim;
 
+    [Header("Konuşurken ağzı açık resimler (boş kalabilir)")]
+    public Sprite mutluAgizAcik;
+    public Sprite notrAgizAcik;
+    public Sprite kizginAgizAcik;
+
     [Header("Geçiş animasyonları (kareleri sırayla sürükle, boş kalabilir)")]
     public Sprite[] mutludanNotre;     // Mutlu -> nötr geçiş kareleri
     public Sprite[] notrdenKizgina;    // Nötr -> kızgın geçiş kareleri
@@ -46,6 +51,14 @@ public class CanavarTuru : ScriptableObject
         return liste[Random.Range(0, liste.Length)];
     }
 
+    // Hale göre ağzı açık resmi verir (yoksa boş döner)
+    public Sprite AgizAcikResim(int hal)
+    {
+        if (hal == 0) return mutluAgizAcik;
+        if (hal == 1) return notrAgizAcik;
+        return kizginAgizAcik;
+    }
+
     // Bir halden diğerine geçerken oynatılacak kareleri sırasıyla verir.
     // Kötüleşirken düz, iyileşirken tersten oynatır.
     public List<Sprite> GecisKareleri(int eskiHal, int yeniHal)
@@ -54,13 +67,11 @@ public class CanavarTuru : ScriptableObject
 
         if (eskiHal < yeniHal)
         {
-            // Kötüleşiyor: mutlu -> nötr -> kızgın
             if (eskiHal <= 0 && yeniHal >= 1 && mutludanNotre != null) kareler.AddRange(mutludanNotre);
             if (eskiHal <= 1 && yeniHal >= 2 && notrdenKizgina != null) kareler.AddRange(notrdenKizgina);
         }
         else
         {
-            // İyileşiyor: kızgın -> nötr -> mutlu (kareler tersten)
             if (eskiHal >= 2 && yeniHal <= 1 && notrdenKizgina != null)
             {
                 List<Sprite> ters = new List<Sprite>(notrdenKizgina);

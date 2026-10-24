@@ -46,6 +46,16 @@ public class GunYoneticisi : MonoBehaviour
     public int GunNumarasi => gun + 1;
     public float SabirCarpani => gunler[gun].sabirCarpani;
 
+    // Bu kahve bugüne kadar açıldı mı (tarif kitabı için)
+    public bool KahveAcikMi(string kahve)
+    {
+        for (int i = 0; i <= gun && i < gunler.Length; i++)
+        {
+            if (System.Array.IndexOf(gunler[i].kahveler, kahve) >= 0) return true;
+        }
+        return false;
+    }
+
     // Gün numarasını kelime olarak verir (rakamlar piksel fontta karışmasın)
     string GunAdi()
     {

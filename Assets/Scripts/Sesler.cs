@@ -11,6 +11,7 @@ public class Sesler : MonoBehaviour
     public AudioClip kapi;
     public AudioClip zil;
     public AudioClip posterTiklama;
+    public AudioClip konusma;     // Harf harf yazarken çalan kısa ses
 
     [Header("Ayarlar")]
     [Range(0f, 1f)] public float sesSeviyesi = 0.8f;
@@ -39,6 +40,7 @@ public class Sesler : MonoBehaviour
     public static void Kapi() { if (Ornek != null) Cal(Ornek.kapi); }
     public static void Zil() { if (Ornek != null) Cal(Ornek.zil); }
     public static void PosterTiklama() { if (Ornek != null) Cal(Ornek.posterTiklama); }
+    public static void Konusma() { if (Ornek != null) Cal(Ornek.konusma); }
 
     public static void DokmeBasla()
     {
