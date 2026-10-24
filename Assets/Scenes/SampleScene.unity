@@ -6375,7 +6375,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: -1
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
+  m_Sprite: {fileID: -1370964999440104743, guid: 2e55ae202b3eaf8449e4db5f81040511, type: 3}
   m_Color: {r: 0.3529412, g: 0.22745098, b: 0.13333334, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -6396,7 +6396,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -2.65, y: 0.3, z: 0}
-  m_LocalScale: {x: 1, y: 2.2, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -6413,8 +6413,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8719a49afc3251b44b665d52fd2a6d57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Kapi
-  kapaliResim: {fileID: 0}
-  acikResim: {fileID: 0}
+  kapaliResim: {fileID: -1370964999440104743, guid: 2e55ae202b3eaf8449e4db5f81040511, type: 3}
+  acikResim: {fileID: 21300000, guid: 27af1fd75943c964fad5cb2cbb9480b2, type: 3}
   acilmaKareleri: []
   kareSuresi: 0.06
   acikKalmaSuresi: 1
@@ -6456,13 +6456,13 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1}
+    oldSize: {x: 1, y: 2.2}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 1, y: 2.2}
   m_EdgeRadius: 0
 --- !u!1 &1819499062
 GameObject:
