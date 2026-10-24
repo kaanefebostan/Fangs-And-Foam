@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 
 // Bir canavar türünün ayar kartı. Kod bilmeden Inspector'dan doldurulur.
@@ -42,11 +43,36 @@ public class CanavarTuru : ScriptableObject
     public AudioClip girisSesi;    // İçeri girince çalar
     public AudioClip kizginSesi;   // Kızgın hale geçince çalar
 
-    [Header("Diyaloglar: her kahve için birkaç cümle (kahvenin adı cümlede geçsin)")]
+    [Header("Diyaloglar: her kahve için birkaç cümle ({kahve} yazılan yere kahvenin adı gelir)")]
     [TextArea] public string[] espressoCumleleri;
     [TextArea] public string[] americanoCumleleri;
     [TextArea] public string[] latteCumleleri;
     [TextArea] public string[] pslCumleleri;
+
+    [Header("Hal değişince söylenecek cümleler (boş kalabilir, {kahve} ya da {KAHVE} kullanılabilir)")]
+    [TextArea] public string[] notreGecinceCumleleri;    // Sabrı azalmaya başlayınca
+    [TextArea] public string[] kizginaGecinceCumleleri;  // Sabrı bitmek üzereyken
+
+    static readonly CultureInfo turkce = new CultureInfo("tr-TR");
+
+    // Kahvenin oyunda görünen adı
+    public static string KahveAdi(string kahve)
+    {
+        if (kahve == "Espresso") return "Espresso";
+        if (kahve == "Americano") return "Americano";
+        if (kahve == "Latte") return "Latte";
+        return "Balkabaklı Latte";
+    }
+
+    // Cümledeki {kahve} ve {KAHVE} yerine kahvenin adını koyar
+    static string KahveyiYerlestir(string cumle, string kahve)
+    {
+        if (string.IsNullOrEmpty(cumle)) return cumle;
+        string ad = KahveAdi(kahve);
+        cumle = cumle.Replace("{KAHVE}", ad.ToUpper(turkce));
+        cumle = cumle.Replace("{kahve}", ad);
+        return cumle;
+    }
 
     // İstenen kahve için rastgele bir cümle seçer. Cümle yoksa kahvenin adını döndürür.
     public string CumleSec(string kahve)
@@ -57,8 +83,20 @@ public class CanavarTuru : ScriptableObject
         else if (kahve == "Latte") liste = latteCumleleri;
         else liste = pslCumleleri;
 
-        if (liste == null || liste.Length == 0) return kahve;
-        return liste[Random.Range(0, liste.Length)];
+        if (liste == null || liste.Length == 0) return KahveAdi(kahve);
+        return KahveyiYerlestir(liste[Random.Range(0, liste.Length)], kahve);
+    }
+
+    // Hal değişince söylenecek cümleyi seçer (1 = nötr, 2 = kızgın).
+    // Liste boşsa null döner, o zaman canavar bir şey söylemez.
+    public string HalCumlesiSec(int hal, string kahve)
+    {
+        string[] liste = null;
+        if (hal == 1) liste = notreGecinceCumleleri;
+        else if (hal == 2) liste = kizginaGecinceCumleleri;
+
+        if (liste == null || liste.Length == 0) return null;
+        return KahveyiYerlestir(liste[Random.Range(0, liste.Length)], kahve);
     }
 
     // Hale göre konuşma (ağız) çizimlerini verir. Liste boşsa eski tek resmi kullanır.

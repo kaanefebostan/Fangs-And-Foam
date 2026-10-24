@@ -16,6 +16,7 @@ MonoBehaviour:
   mutluResim: {fileID: 21300000, guid: 00bedd9351a8d774c95ab35adaa1b99e, type: 3}
   notrResim: {fileID: 21300000, guid: a00978327b66d954492bf4c30127440d, type: 3}
   kizginResim: {fileID: 21300000, guid: 0f6b7ca911f172f45889b1ee9982c513, type: 3}
+  jumpscareResmi: {fileID: 0}
   mutluKonusma:
   - {fileID: 21300000, guid: f56fc6c335c21c245b29ac99195c4aa2, type: 3}
   notrKonusma: []
@@ -39,3 +40,6 @@ MonoBehaviour:
   - "Bana \xF6l\xFCm kadar s\u0131cak bir AMERICANO yap."
   latteCumleleri: []
   pslCumleleri: []
+  notreGecinceCumleleri: []
+  kizginaGecinceCumleleri:
+  - "H\xC2L\xC2 {KAHVE} YOK MU?!"

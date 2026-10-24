@@ -47,6 +47,11 @@ public class Musteri : MonoBehaviour
     float sabirSuresi = 20f;
     float agizSayac;
     int sonAgizKaresi = -1;
+    string bekleyenCumle;  // Geçiş animasyonu bitince söylenecek cümle
+
+    // Torba sistemi: her canavar bir kez gelmeden hiçbiri tekrar gelmez
+    List<CanavarTuru> torba = new List<CanavarTuru>();
+    CanavarTuru sonCanavar; // Bir önceki müşteri
 
     float kalanSabir;
     bool bekliyor = false;       // İçeride, kahve bekliyor mu
@@ -87,6 +92,7 @@ public class Musteri : MonoBehaviour
     {
         StopAllCoroutines();
         gecisOynuyor = false;
+        bekleyenCumle = null;
         transform.position = asilKonum;
         transform.localScale = asilBoyut;
         gorsel.enabled = false;
@@ -117,15 +123,15 @@ public class Musteri : MonoBehaviour
         kalanSabir -= Time.deltaTime;
         CubuguCiz();
 
-        // Sabır azaldıkça ruh hali kötüleşir
+        // Sabır azaldıkça ruh hali kötüleşir ve canavar bir şey söyler
         float oran = kalanSabir / sabirSuresi;
-        if (oran < 0.33f) HaleGec(2);
-        else if (oran < 0.66f) HaleGec(1);
+        if (oran < 0.33f) HaleGec(2, true);
+        else if (oran < 0.66f) HaleGec(1, true);
 
         if (kalanSabir <= 0f)
         {
             kahveDoldurma.Durdur();
-            HaleGec(2);
+            HaleGec(2, false);
             Bitir("GEÇ KALDIN!", "GEC");
         }
     }
@@ -141,6 +147,13 @@ public class Musteri : MonoBehaviour
     {
         if (daktilo != null) daktilo.Temizle();
         else siparisYazisi.text = "";
+    }
+
+    // Geçiş bittiyse ve söylenecek cümle varsa söyle
+    void BekleyenCumleyiSoyle()
+    {
+        if (bekleyenCumle != null && bekliyor) YaziGoster(bekleyenCumle);
+        bekleyenCumle = null;
     }
 
     // Konuşurken ağız çizimleri arasında rastgele geçiş yapar, yazı bitince ağız kapanır
@@ -249,7 +262,7 @@ public class Musteri : MonoBehaviour
 
         if (kalite == "MUKEMMEL")
         {
-            HaleGec(0);
+            HaleGec(0, false);
             Bitir("MÜKEMMEL!", kalite);
         }
         else if (kalite == "IYI")
@@ -258,17 +271,17 @@ public class Musteri : MonoBehaviour
         }
         else if (kalite == "TASTI")
         {
-            HaleGec(2);
+            HaleGec(2, false);
             Bitir("TAŞTI!", kalite);
         }
         else if (kalite == "YANLIS")
         {
-            HaleGec(2);
+            HaleGec(2, false);
             Bitir("YANLIŞ KAHVE!", kalite);
         }
         else
         {
-            HaleGec(2);
+            HaleGec(2, false);
             Bitir("KÖTÜ...", kalite);
         }
     }
@@ -276,6 +289,7 @@ public class Musteri : MonoBehaviour
     void Bitir(string mesaj, string sonuc)
     {
         bekliyor = false;
+        bekleyenCumle = null;
         sonucYazisi.text = mesaj;
         YaziTemizle();
         if (baloncuk != null) baloncuk.SetActive(false);
@@ -305,6 +319,7 @@ public class Musteri : MonoBehaviour
     {
         StopAllCoroutines();
         gecisOynuyor = false;
+        bekleyenCumle = null;
         transform.position = asilKonum;
         transform.localScale = asilBoyut;
 
@@ -318,12 +333,52 @@ public class Musteri : MonoBehaviour
         gunYoneticisi.GunSonuGoster();
     }
 
+    // Torbadan sıradaki canavarı çeker.
+    // Torba boşalınca tüm canavarlar tekrar konur ve karıştırılır.
+    // Aynı canavar asla arka arkaya gelmez.
+    CanavarTuru SiradakiCanavar()
+    {
+        // Torba boşsa doldur
+        if (torba.Count == 0)
+        {
+            foreach (CanavarTuru c in canavarlar)
+            {
+                if (c != null) torba.Add(c);
+            }
+
+            // Karıştır (kartları deste gibi karıştırmak)
+            for (int i = torba.Count - 1; i > 0; i--)
+            {
+                int j = Random.Range(0, i + 1);
+                CanavarTuru gecici = torba[i];
+                torba[i] = torba[j];
+                torba[j] = gecici;
+            }
+
+            // Yeni turun ilki, bir önceki müşteriyle aynıysa onu sona at
+            if (torba.Count > 1 && torba[0] == sonCanavar)
+            {
+                CanavarTuru ilk = torba[0];
+                torba.RemoveAt(0);
+                torba.Add(ilk);
+            }
+        }
+
+        if (torba.Count == 0) return null;
+
+        CanavarTuru secilen = torba[0];
+        torba.RemoveAt(0);
+        sonCanavar = secilen;
+        return secilen;
+    }
+
     // Yeni canavar seçilir ve kapının önünde beklemeye başlar
     void YeniMusteri()
     {
         // Yarıda kalan animasyon ya da titreme varsa düzelt
         StopAllCoroutines();
         gecisOynuyor = false;
+        bekleyenCumle = null;
         transform.position = asilKonum;
         transform.localScale = asilBoyut;
 
@@ -333,8 +388,13 @@ public class Musteri : MonoBehaviour
             return;
         }
 
-        // Rastgele bir canavar, günün kahvelerinden rastgele bir kahve
-        tur = canavarlar[Random.Range(0, canavarlar.Length)];
+        // Torbadan sıradaki canavar, günün kahvelerinden rastgele bir kahve
+        tur = SiradakiCanavar();
+        if (tur == null)
+        {
+            Debug.LogError("Musteri: Canavarlar listesindeki kutular bos! Kartlari surukle.");
+            return;
+        }
         sabirSuresi = tur.sabirSuresi * gunYoneticisi.SabirCarpani;
         HalGoster(0);
         siparis = gunYoneticisi.RastgeleKahve();
@@ -351,8 +411,9 @@ public class Musteri : MonoBehaviour
         kapiSayac = kapiSabri;
     }
 
-    // Ruh halini değiştir: geçiş animasyonunu oynat ve titret
-    void HaleGec(int yeniHal)
+    // Ruh halini değiştir: geçiş animasyonunu oynat ve titret.
+    // konussun = true ise geçiş bitince canavar o hale uygun bir cümle söyler.
+    void HaleGec(int yeniHal, bool konussun)
     {
         if (yeniHal == hal) return;
 
@@ -362,6 +423,9 @@ public class Musteri : MonoBehaviour
         gecisOynuyor = false;
         transform.position = asilKonum;
         transform.localScale = asilBoyut;
+
+        // Söylenecek cümleyi şimdiden seç, geçiş bitince söylenecek
+        bekleyenCumle = konussun ? tur.HalCumlesiSec(yeniHal, siparis) : null;
 
         StartCoroutine(GecisOynat(eskiHal, yeniHal));
         StartCoroutine(Titre());
@@ -389,6 +453,7 @@ public class Musteri : MonoBehaviour
             }
             HalGoster(yeniHal);
             gecisOynuyor = false;
+            BekleyenCumleyiSoyle();
             yield break;
         }
 
@@ -418,6 +483,7 @@ public class Musteri : MonoBehaviour
         }
         gorsel.color = hedefRenk;
         gecisOynuyor = false;
+        BekleyenCumleyiSoyle();
     }
 
     // Hale uygun resmi göster, resim yoksa rengi değiştir

@@ -16,6 +16,7 @@ MonoBehaviour:
   mutluResim: {fileID: 21300000, guid: d04ada39bcd11b74bbfc0abb60fe0b5b, type: 3}
   notrResim: {fileID: 21300000, guid: 57e02cf3d0df5d44cbfcc92e68fe6445, type: 3}
   kizginResim: {fileID: 21300000, guid: 228aa4ab25392aa49a6fbfca1f76203a, type: 3}
+  jumpscareResmi: {fileID: 0}
   mutluKonusma:
   - {fileID: 21300000, guid: 07d7526ae63653e4fa1b5c898417708a, type: 3}
   notrKonusma: []
@@ -41,3 +42,6 @@ MonoBehaviour:
   - "Yumu\u015Fak bir LATTE... \u015Fimdilik."
   pslCumleleri:
   - "Balkaba\u011F\u0131 m\u0131? Ver bakal\u0131m \u015Fu PUMPKIN SPICE LATTE'yi."
+  notreGecinceCumleleri: []
+  kizginaGecinceCumleleri:
+  - "H\xC2L\xC2 {KAHVE} YOK MU?!"
