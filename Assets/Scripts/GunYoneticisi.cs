@@ -13,14 +13,19 @@ public class GunAyari
     public string gunNotu = "";                  // Gün başında gösterilecek not
 }
 
-// Günleri yönetir: gün başı ekranı, müşteri sayımı, gün sonu ekranı, kazanma.
+// Günleri yönetir: gün başı ekranı, müşteri sayımı, gün sonu ekranı, kazanma, kayıt.
 public class GunYoneticisi : MonoBehaviour
 {
+    public const string KayitAnahtari = "kayitliGun";   // Devam Et için kaydedilen gün
+
     [Header("Sahnedeki objeler")]
     public Musteri musteri;
     public Mutluluk mutluluk;
     public TMP_Text gunYazisi;       // Gün başı / gün sonu yazısı
     public SpriteRenderer gunPaneli; // Yazının arkasındaki karanlık ekran
+
+    [Header("Başlangıç")]
+    public bool menuyuBekle = true;  // İşaretliyse oyun ana menüden başlatılır
 
     [Header("Günler")]
     public GunAyari[] gunler =
@@ -42,9 +47,17 @@ public class GunYoneticisi : MonoBehaviour
     int memnunMusteri = 0;
     bool enterBekliyor = false;
     bool kazandi = false;
+    int acilisKaresi = -1;    // Menüdeki Enter, gün ekranını hemen geçmesin diye
 
     public int GunNumarasi => gun + 1;
     public float SabirCarpani => gunler[gun].sabirCarpani;
+
+    // Gün numarasını kelime olarak verir (rakamlar piksel fontta karışmasın)
+    string GunAdi()
+    {
+        string[] adlar = { "BİRİNCİ", "İKİNCİ", "ÜÇÜNCÜ", "DÖRDÜNCÜ", "BEŞİNCİ", "ALTINCI", "YEDİNCİ" };
+        return gun < adlar.Length ? adlar[gun] : (gun + 1) + ".";
+    }
 
     // Bu kahve bugüne kadar açıldı mı (tarif kitabı için)
     public bool KahveAcikMi(string kahve)
@@ -56,21 +69,26 @@ public class GunYoneticisi : MonoBehaviour
         return false;
     }
 
-    // Gün numarasını kelime olarak verir (rakamlar piksel fontta karışmasın)
-    string GunAdi()
-    {
-        string[] adlar = { "BİRİNCİ", "İKİNCİ", "ÜÇÜNCÜ", "DÖRDÜNCÜ", "BEŞİNCİ", "ALTINCI", "YEDİNCİ" };
-        return gun < adlar.Length ? adlar[gun] : (gun + 1) + ".";
-    }
-
     void Start()
     {
+        gunYazisi.gameObject.SetActive(false);
+        if (gunPaneli != null) gunPaneli.gameObject.SetActive(false);
+
+        // Menü yoksa oyun direkt başlasın
+        if (!menuyuBekle) OyunuBaslat(0);
+    }
+
+    // Menü "Yeni Oyun" ya da "Devam Et" deyince çağırır
+    public void OyunuBaslat(int baslangicGunu)
+    {
+        gun = Mathf.Clamp(baslangicGunu, 0, gunler.Length - 1);
+        acilisKaresi = Time.frameCount;
         PaneliAc(GunAdi() + " GÜN\n<size=60%>" + gunler[gun].gunNotu + "\n\nEnter: başla</size>");
     }
 
     void Update()
     {
-        if (!enterBekliyor || mutluluk.OyunBitti) return;
+        if (!enterBekliyor || mutluluk.OyunBitti || Time.frameCount == acilisKaresi) return;
 
         var klavye = Keyboard.current;
         if (klavye != null && klavye.enterKey.wasPressedThisFrame)
@@ -113,9 +131,15 @@ public class GunYoneticisi : MonoBehaviour
         if (gun >= gunler.Length)
         {
             kazandi = true;
-            PaneliAc("KAFE HAYATTA KALDI\n<size=60%>...şimdilik\n\nEnter: tekrar oyna</size>");
+            PlayerPrefs.DeleteKey(KayitAnahtari);   // Oyun bitti, kayda gerek yok
+            PlayerPrefs.Save();
+            PaneliAc("KAFE HAYATTA KALDI\n<size=60%>...şimdilik\n\nEnter: menüye dön</size>");
             return;
         }
+
+        // Devam Et için hangi günde kaldığını kaydet
+        PlayerPrefs.SetInt(KayitAnahtari, gun);
+        PlayerPrefs.Save();
 
         PaneliAc(ozet + GunAdi() + " GÜN: " + gunler[gun].gunNotu + "\n\nEnter: devam</size>");
     }

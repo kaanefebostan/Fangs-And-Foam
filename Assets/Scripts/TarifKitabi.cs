@@ -54,6 +54,7 @@ public class TarifKitabi : MonoBehaviour
 
     void Update()
     {
+        if (MenuYoneticisi.Acik) return;
         var fare = Mouse.current;
         var klavye = Keyboard.current;
 

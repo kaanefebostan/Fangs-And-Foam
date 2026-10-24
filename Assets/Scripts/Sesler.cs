@@ -15,7 +15,8 @@ public class Sesler : MonoBehaviour
     public AudioClip jumpscare;   // Mutluluk bitince çalan çığlık
 
     [Header("Ayarlar")]
-    [Range(0f, 1f)] public float sesSeviyesi = 0.8f;
+    [Range(0f, 1f)] public float sesSeviyesi = 0.35f;
+    [Range(0f, 1f)] public float jumpscareSesi = 0.8f;
 
     AudioSource tekSeferlik;   // Kısa sesler için
     AudioSource dokmeKaynagi;  // Dökme sesi için (döngülü)
@@ -37,6 +38,9 @@ public class Sesler : MonoBehaviour
         Ornek.tekSeferlik.PlayOneShot(ses, Ornek.sesSeviyesi);
     }
 
+    // Herhangi bir sesi çal (karakter sesleri gibi)
+    public static void Oynat(AudioClip ses) { Cal(ses); }
+
     public static void Tiklama() { if (Ornek != null) Cal(Ornek.tiklama); }
     public static void Kapi() { if (Ornek != null) Cal(Ornek.kapi); }
     public static void Zil() { if (Ornek != null) Cal(Ornek.zil); }
@@ -46,7 +50,7 @@ public class Sesler : MonoBehaviour
     public static void Jumpscare()
     {
         if (Ornek == null || Ornek.jumpscare == null) return;
-        Ornek.tekSeferlik.PlayOneShot(Ornek.jumpscare, 1f); // Jumpscare her zaman tam ses
+        Ornek.tekSeferlik.PlayOneShot(Ornek.jumpscare, Ornek.jumpscareSesi);
     }
 
     public static void DokmeBasla()

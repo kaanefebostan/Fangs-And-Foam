@@ -13,8 +13,7 @@ public class Musteri : MonoBehaviour
     public GunYoneticisi gunYoneticisi; // Günleri yöneten obje
     public KahveDoldurma kahveDoldurma; // Kahve makinesi
     public Mutluluk mutluluk;           // Kafenin mutluluk çubuğu
-    public Muzik muzik;                 // Kafe müziği
-    public int karanlikMuzikHali = 2;   // Hangi halde karanlık müzik başlasın (1 = nötr, 2 = kızgın)
+    public Muzik muzik;                 // Kafe müziği (hal değiştikçe kararır)
     public Transform sabirCubugu;       // Yeşil sabır çubuğu
     public TMP_Text siparisYazisi;      // Müşterinin söylediği cümle
     public TMP_Text sonucYazisi;        // Ortadaki büyük sonuç yazısı
@@ -31,7 +30,7 @@ public class Musteri : MonoBehaviour
     public Color kapiParlamaRengi = new Color(1f, 0.85f, 0.3f); // Kapı yanıp sönerken rengi
 
     [Header("Konuşma")]
-    public float agizHizi = 0.12f;       // Konuşurken ağız kaç saniyede bir açılıp kapanır
+    public float agizHizi = 0.1f;        // Konuşurken ağız kaç saniyede bir değişir
 
     [Header("Geçiş efekti")]
     public float titremeSuresi = 0.3f;   // Kaç saniye titrer
@@ -43,9 +42,11 @@ public class Musteri : MonoBehaviour
     Vector3 asilBoyut;
     int hal = 0;           // 0 = mutlu, 1 = nötr, 2 = kızgın
     CanavarTuru tur;       // Şu anki canavar
-    Sprite halResmi;       // Şu anki halin normal resmi
+    Sprite halResmi;       // Şu anki halin normal (ağzı kapalı) resmi
     bool gecisOynuyor = false;
     float sabirSuresi = 20f;
+    float agizSayac;
+    int sonAgizKaresi = -1;
 
     float kalanSabir;
     bool bekliyor = false;       // İçeride, kahve bekliyor mu
@@ -74,8 +75,25 @@ public class Musteri : MonoBehaviour
         YaziTemizle();
         sonucYazisi.text = "";
     }
+
     // Müşteri içeride kahve bekliyor mu (korku efektleri için)
     public bool IcerideBekliyor => bekliyor;
+
+    // Şu an gelen canavar (jumpscare için)
+    public CanavarTuru SuankiCanavar => tur;
+
+    // Jumpscare başlarken müşteriyi, sabır çubuğunu ve baloncuğu gizler
+    public void JumpscareIcinGizle()
+    {
+        StopAllCoroutines();
+        gecisOynuyor = false;
+        transform.position = asilKonum;
+        transform.localScale = asilBoyut;
+        gorsel.enabled = false;
+        sabirCubugu.gameObject.SetActive(false);
+        if (baloncuk != null) baloncuk.SetActive(false);
+        YaziTemizle();
+    }
 
     // GunYoneticisi yeni gün başlayınca çağırır
     public void GunuBaslat()
@@ -124,17 +142,33 @@ public class Musteri : MonoBehaviour
         else siparisYazisi.text = "";
     }
 
-    // Konuşurken ağız açılıp kapanır (ağzı açık resim varsa)
+    // Konuşurken ağız çizimleri arasında rastgele geçiş yapar, yazı bitince ağız kapanır
     void AgizOynat()
     {
         if (gecisOynuyor || tur == null || halResmi == null) return;
 
-        Sprite agizAcik = tur.AgizAcikResim(hal);
-        if (agizAcik == null) return;
+        List<Sprite> kareler = tur.KonusmaKareleri(hal);
+        if (kareler.Count == 0) return;
 
         bool konusuyor = daktilo != null && daktilo.YaziyorMu;
-        bool acik = konusuyor && Mathf.Repeat(Time.time, agizHizi * 2f) < agizHizi;
-        gorsel.sprite = acik ? agizAcik : halResmi;
+        if (!konusuyor)
+        {
+            if (gorsel.sprite != halResmi) gorsel.sprite = halResmi;
+            sonAgizKaresi = -1;
+            return;
+        }
+
+        agizSayac -= Time.deltaTime;
+        if (agizSayac > 0f) return;
+        agizSayac = agizHizi;
+
+        // 0 = ağız kapalı (normal resim), 1+ = ağız çizimleri. Aynı kare üst üste gelmesin.
+        int toplam = kareler.Count + 1;
+        int yeni = Random.Range(0, toplam);
+        if (yeni == sonAgizKaresi) yeni = (yeni + 1) % toplam;
+        sonAgizKaresi = yeni;
+
+        gorsel.sprite = yeni == 0 ? halResmi : kareler[yeni - 1];
     }
 
     // Canavar kapıda: kapı yanıp söner, tıklanmayı bekler
@@ -183,6 +217,7 @@ public class Musteri : MonoBehaviour
         Sesler.Kapi();
         Kapi kapiAnim = kapi.GetComponent<Kapi>();
         if (kapiAnim != null) kapiAnim.AcVeKapat();
+        if (tur.girisSesi != null) Sesler.Oynat(tur.girisSesi);
 
         gorsel.enabled = true;
         sabirCubugu.gameObject.SetActive(true);
@@ -277,7 +312,7 @@ public class Musteri : MonoBehaviour
         if (baloncuk != null) baloncuk.SetActive(false);
         sonucYazisi.text = "";
         kahveDoldurma.Temizle();
-        if (muzik != null) muzik.KaranlikOlsun(false);
+        if (muzik != null) muzik.Seviye(0);
 
         gunYoneticisi.GunSonuGoster();
     }
@@ -321,6 +356,7 @@ public class Musteri : MonoBehaviour
         if (yeniHal == hal) return;
 
         int eskiHal = hal;
+        if (yeniHal == 2 && tur.kizginSesi != null) Sesler.Oynat(tur.kizginSesi);
         StopAllCoroutines();
         gecisOynuyor = false;
         transform.position = asilKonum;
@@ -336,7 +372,7 @@ public class Musteri : MonoBehaviour
     {
         gecisOynuyor = true;
         hal = yeniHal; // Oyun mantığı açısından hal hemen değişir
-        if (muzik != null) muzik.KaranlikOlsun(hal >= karanlikMuzikHali);
+        if (muzik != null) muzik.Seviye(hal);
         if (gecisEfekti != null) gecisEfekti.Play();
 
         // Tasarımcının çizdiği geçiş kareleri varsa onları oynat
@@ -387,7 +423,7 @@ public class Musteri : MonoBehaviour
     void HalGoster(int yeniHal)
     {
         hal = yeniHal;
-        if (muzik != null) muzik.KaranlikOlsun(hal >= karanlikMuzikHali);
+        if (muzik != null) muzik.Seviye(hal);
 
         Sprite resim;
         Color renk;

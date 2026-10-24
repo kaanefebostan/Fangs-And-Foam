@@ -20,7 +20,7 @@ public class KorkuEfektleri : MonoBehaviour
     public Mutluluk mutluluk;
     public Musteri musteri;              // Sürekli sallanma sadece müşteri içerideyken
     public Light2D isik;                 // Global Light 2D
-    public SpriteRenderer musteriGorsel; // Jumpscare'de bu canavarın yüzü kullanılır
+    public SpriteRenderer musteriGorsel; // Yedek: canavarın resmi bulunamazsa bu kullanılır
     public SpriteRenderer jumpscareResmi;
 
     [Header("Işık")]
@@ -41,7 +41,7 @@ public class KorkuEfektleri : MonoBehaviour
     public float uzuvHizi = 3f;
 
     [Header("Jumpscare")]
-    public Sprite jumpscareOzelResim;    // Boşsa müşterinin o anki resmi kullanılır
+    public Sprite jumpscareOzelResim;    // Doluysa her canavar için bu kullanılır
     public float jumpscareSuresi = 1.2f;
     [Range(0f, 1f)] public float yuzYuksekligi = 0.8f; // Yüz resmin neresinde (0 = alt, 1 = üst)
 
@@ -147,8 +147,17 @@ public class KorkuEfektleri : MonoBehaviour
         jumpscareOynuyor = true;
         Sesler.Jumpscare();
 
+        // Hangi resim gösterilecek: özel resim > canavarın jumpscare resmi > kızgın hali > o anki resmi
         Sprite resim = jumpscareOzelResim;
+        if (resim == null && musteri != null && musteri.SuankiCanavar != null)
+        {
+            CanavarTuru c = musteri.SuankiCanavar;
+            resim = c.jumpscareResmi != null ? c.jumpscareResmi : c.kizginResim;
+        }
         if (resim == null && musteriGorsel != null) resim = musteriGorsel.sprite;
+
+        // Tezgahtaki müşteri kaybolsun, sanki ekrana atladı
+        if (musteri != null) musteri.JumpscareIcinGizle();
 
         if (jumpscareResmi != null && resim != null)
         {

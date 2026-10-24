@@ -8,12 +8,18 @@ public class CanavarTuru : ScriptableObject
 {
     public string canavarAdi = "Canavar";
 
-    [Header("Resimler (gelince buraya sürükle)")]
+    [Header("Resimler (ağız kapalı hali)")]
     public Sprite mutluResim;
     public Sprite notrResim;
     public Sprite kizginResim;
+    public Sprite jumpscareResmi;   // Boşsa kızgın resim kullanılır
 
-    [Header("Konuşurken ağzı açık resimler (boş kalabilir)")]
+    [Header("Konuşma: her hal için ağız çizimleri (sıra önemli değil, boş kalabilir)")]
+    public Sprite[] mutluKonusma;
+    public Sprite[] notrKonusma;
+    public Sprite[] kizginKonusma;
+
+    [Header("Eski tek ağız resimleri (yukarıdaki listeler boşsa kullanılır)")]
     public Sprite mutluAgizAcik;
     public Sprite notrAgizAcik;
     public Sprite kizginAgizAcik;
@@ -31,6 +37,10 @@ public class CanavarTuru : ScriptableObject
 
     [Header("Huy")]
     public float sabirSuresi = 20f;   // Kaç saniye bekler
+
+    [Header("Karakter sesleri (boş kalabilir)")]
+    public AudioClip girisSesi;    // İçeri girince çalar
+    public AudioClip kizginSesi;   // Kızgın hale geçince çalar
 
     [Header("Diyaloglar: her kahve için birkaç cümle (kahvenin adı cümlede geçsin)")]
     [TextArea] public string[] espressoCumleleri;
@@ -51,12 +61,25 @@ public class CanavarTuru : ScriptableObject
         return liste[Random.Range(0, liste.Length)];
     }
 
-    // Hale göre ağzı açık resmi verir (yoksa boş döner)
-    public Sprite AgizAcikResim(int hal)
+    // Hale göre konuşma (ağız) çizimlerini verir. Liste boşsa eski tek resmi kullanır.
+    public List<Sprite> KonusmaKareleri(int hal)
     {
-        if (hal == 0) return mutluAgizAcik;
-        if (hal == 1) return notrAgizAcik;
-        return kizginAgizAcik;
+        Sprite[] liste = hal == 0 ? mutluKonusma : (hal == 1 ? notrKonusma : kizginKonusma);
+        List<Sprite> sonuc = new List<Sprite>();
+        if (liste != null)
+        {
+            foreach (Sprite s in liste)
+            {
+                if (s != null) sonuc.Add(s);
+            }
+        }
+
+        if (sonuc.Count == 0)
+        {
+            Sprite tek = hal == 0 ? mutluAgizAcik : (hal == 1 ? notrAgizAcik : kizginAgizAcik);
+            if (tek != null) sonuc.Add(tek);
+        }
+        return sonuc;
     }
 
     // Bir halden diğerine geçerken oynatılacak kareleri sırasıyla verir.

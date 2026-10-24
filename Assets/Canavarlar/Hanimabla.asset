@@ -13,17 +13,28 @@ MonoBehaviour:
   m_Name: Hanimabla
   m_EditorClassIdentifier: Assembly-CSharp::CanavarTuru
   canavarAdi: Hanimabla
-  mutluResim: {fileID: 21300000, guid: c4bfc00e9ecdd6f49b2ee95442ee07d5, type: 3}
-  notrResim: {fileID: 0}
-  kizginResim: {fileID: 0}
+  mutluResim: {fileID: 21300000, guid: d593e12f07c943044b7702681360a29b, type: 3}
+  notrResim: {fileID: 21300000, guid: d7a2016978e34d44e9da93426c5e10ff, type: 3}
+  kizginResim: {fileID: 21300000, guid: ad67c9b5339d6a14a8e0b9b610bd6202, type: 3}
+  mutluKonusma:
+  - {fileID: 21300000, guid: da65aa6e4bd89c741a12a1804ffa9b96, type: 3}
+  notrKonusma: []
+  kizginKonusma: []
+  mutluAgizAcik: {fileID: 0}
+  notrAgizAcik: {fileID: 0}
+  kizginAgizAcik: {fileID: 0}
   mutludanNotre: []
   notrdenKizgina: []
   kareSuresi: 0.08
+  siyahGecisSuresi: 0.25
   mutluRenk: {r: 0.55, g: 0, b: 1, a: 1}
   notrRenk: {r: 1, g: 0.8, b: 0.2, a: 1}
   kizginRenk: {r: 0.9, g: 0.1, b: 0.1, a: 1}
   sabirSuresi: 25
-  espressoCumleleri: []
+  girisSesi: {fileID: 8300000, guid: 53094e27dd9ea1e49a1539581d654565, type: 3}
+  kizginSesi: {fileID: 8300000, guid: a58221dcb1617d7458724b4cdc7a682e, type: 3}
+  espressoCumleleri:
+  - aaaaaaaaa
   americanoCumleleri:
   - "Bana \xF6l\xFCm kadar s\u0131cak bir AMERICANO yap."
   latteCumleleri: []
