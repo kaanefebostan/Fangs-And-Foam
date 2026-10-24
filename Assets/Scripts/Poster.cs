@@ -15,8 +15,12 @@ public class Poster : MonoBehaviour
     [Header("Saldıracak canavar")]
     public CanavarTuru ikizler;      // İkizlerin canavar kartı
 
-    [Header("Ayarlar")]
+    [Header("Saldırı sahnesi")]
+    [TextArea] public string oyuncuCumlesi = "Bir dakika... Bu siz misiniz?";
+    [TextArea] public string ikizlerinCumlesi = "Gördü bizi...\nSusturalım o zaman.";
     public string saldiriMetni = "SENİ GÖRDÜLER";
+
+    [Header("Ayarlar")]
     public AudioClip tiklamaSesi;    // Poster açılınca çalar (boş kalabilir)
 
     // Poster açık mı (açıkken kahve yapılamaz, kapıya tıklanamaz)
@@ -72,7 +76,7 @@ public class Poster : MonoBehaviour
         // İkizler içerideyse: saldırı!
         if (musteri != null && ikizler != null && musteri.IcerideMi && musteri.SuankiCanavar == ikizler)
         {
-            musteri.Saldir(saldiriMetni);
+            musteri.Saldir(oyuncuCumlesi, ikizlerinCumlesi, saldiriMetni);
             return;
         }
 

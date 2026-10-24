@@ -52,6 +52,11 @@ public class Musteri : MonoBehaviour
     public float kotuCevapMutluluk = -10f;  // Kötü cevapta mutluluk değişimi
     public float tepkiSonrasiBekleme = 1.2f; // Tepkiden sonra siparişe geçmeden önce bekleme
 
+    [Header("Oyuncunun konuşma kutusu (alttaki şerit, boş kalabilir)")]
+    public GameObject oyuncuKutusu;         // Ekranın altındaki koyu şerit
+    public TMP_Text oyuncuYazisi;           // Şeridin içindeki yazı (Daktilo eklenirse harf harf yazar)
+    public float oyuncuSonrasiBekleme = 1.2f; // Oyuncunun sözü bittikten sonra bekleme
+
     [Header("Kafenin güveni")]
     public TMP_Text guvenYazisi;            // "Güven %85" yazısı (boş kalabilir)
     public float iyiCevapGuven = 5f;        // İyi cevapta güven artışı
@@ -88,6 +93,13 @@ public class Musteri : MonoBehaviour
     // Kafenin güveni (0 - 100)
     float guven = 100f;
 
+    // Saldırı sahnesi (postere bakılınca)
+    bool saldiriyor = false;
+    int saldiriAsama = 0;           // 1 = oyuncu konuşuyor, 2 = canavar konuşuyor
+    float saldiriSayac;
+    string saldiriCanavarCumlesi;
+    string saldiriMetni;
+
     float kalanSabir;
     bool bekliyor = false;       // İçeride, kahve bekliyor mu
     bool kapidaBekliyor = false; // Kapının önünde mi
@@ -113,6 +125,7 @@ public class Musteri : MonoBehaviour
         sabirCubugu.gameObject.SetActive(false);
         if (baloncuk != null) baloncuk.SetActive(false);
         ButonlariGizle();
+        OyuncuKutusunuKapat();
         YaziTemizle();
         sonucYazisi.text = "";
 
@@ -135,6 +148,10 @@ public class Musteri : MonoBehaviour
     // Jumpscare başlarken müşteriyi, sabır çubuğunu ve baloncuğu gizler
     public void JumpscareIcinGizle()
     {
+        CancelInvoke();
+        saldiriyor = false;
+        saldiriAsama = 0;
+        OyuncuKutusunuKapat();
         StopAllCoroutines();
         gecisOynuyor = false;
         bekleyenCumle = null;
@@ -148,21 +165,114 @@ public class Musteri : MonoBehaviour
         YaziTemizle();
     }
 
-    // Canavar saldırıyor (örn. ikizler postere bakıldığını gördü): oyun biter
-    public void Saldir(string metin)
+    // Canavar saldırıyor (örn. ikizler postere bakıldığını gördü).
+    // Önce oyuncu alttaki kutuda bir şey der, canavar kızgın hale geçip cevap verir,
+    // sonra saldırır ve oyun biter.
+    public void Saldir(string oyuncuCumlesi, string canavarCumlesi, string metin)
     {
-        if (mutluluk.OyunBitti) return;
+        if (mutluluk.OyunBitti || saldiriyor) return;
 
         CancelInvoke();
+        saldiriyor = true;
+        saldiriCanavarCumlesi = canavarCumlesi;
+        saldiriMetni = metin;
+
         bekliyor = false;
         kapidaBekliyor = false;
         asama = Asama.Yok;
+        bekleyenCumle = null;
         ButonlariGizle();
         kapi.color = kapiNormalRenk;
         kahveDoldurma.Temizle();
+        YaziTemizle();
         sonucYazisi.text = "";
 
-        mutluluk.Saldiri(metin);
+        // 1. adım: oyuncu konuşur (alttaki kutu)
+        saldiriAsama = 1;
+        saldiriSayac = oyuncuSonrasiBekleme;
+        OyuncuKonussun(oyuncuCumlesi);
+    }
+
+    // Oyuncunun sözünü alttaki kutuda harf harf gösterir
+    void OyuncuKonussun(string metin)
+    {
+        if (string.IsNullOrEmpty(metin)) return;
+
+        if (oyuncuKutusu != null) oyuncuKutusu.SetActive(true);
+        if (oyuncuYazisi != null)
+        {
+            oyuncuYazisi.gameObject.SetActive(true);
+            Daktilo d = oyuncuYazisi.GetComponent<Daktilo>();
+            if (d != null) d.Yaz(metin);
+            else oyuncuYazisi.text = metin;
+        }
+        else
+        {
+            // Kutu kurulmadıysa ortadaki yazıda göster
+            sonucYazisi.text = "<size=60%>" + metin + "</size>";
+        }
+    }
+
+    bool OyuncuYaziyor
+    {
+        get
+        {
+            if (oyuncuYazisi == null) return false;
+            Daktilo d = oyuncuYazisi.GetComponent<Daktilo>();
+            return d != null && d.YaziyorMu;
+        }
+    }
+
+    void OyuncuKutusunuKapat()
+    {
+        if (oyuncuYazisi != null)
+        {
+            Daktilo d = oyuncuYazisi.GetComponent<Daktilo>();
+            if (d != null) d.Temizle();
+            else oyuncuYazisi.text = "";
+        }
+        if (oyuncuKutusu != null) oyuncuKutusu.SetActive(false);
+    }
+
+    void SaldiriSahnesi()
+    {
+        if (saldiriAsama == 1)
+        {
+            // Oyuncu sözünü bitirsin, okunsun diye biraz beklensin
+            if (OyuncuYaziyor)
+            {
+                saldiriSayac = oyuncuSonrasiBekleme;
+                return;
+            }
+            saldiriSayac -= Time.deltaTime;
+            if (saldiriSayac > 0f) return;
+
+            // 2. adım: canavar döner, kızar ve konuşur
+            OyuncuKutusunuKapat();
+            sonucYazisi.text = "";
+            saldiriAsama = 2;
+            saldiriSayac = 1f;
+
+            if (baloncuk != null) baloncuk.SetActive(true);
+            HaleGec(2, false);
+            bekleyenCumle = string.IsNullOrEmpty(saldiriCanavarCumlesi) ? null : saldiriCanavarCumlesi;
+            if (!gecisOynuyor) BekleyenCumleyiSoyle();
+        }
+        else if (saldiriAsama == 2)
+        {
+            // Canavar sözünü bitirince kısa bir sessizlik, sonra saldırı
+            if (gecisOynuyor || bekleyenCumle != null || Yaziyor)
+            {
+                saldiriSayac = 1f;
+                return;
+            }
+            saldiriSayac -= Time.deltaTime;
+            if (saldiriSayac > 0f) return;
+
+            saldiriAsama = 0;
+            saldiriyor = false;
+            mutluluk.Saldiri(saldiriMetni);
+        }
     }
 
     // GunYoneticisi yeni gün başlayınca çağırır
@@ -179,6 +289,15 @@ public class Musteri : MonoBehaviour
     void Update()
     {
         if (DuraklatmaMenusu.Acik) return;
+
+        // Saldırı sahnesi oynuyor: ağız oynar, başka hiçbir şey olmaz
+        if (saldiriyor)
+        {
+            AgizOynat();
+            SaldiriSahnesi();
+            return;
+        }
+
         if (kapidaBekliyor)
         {
             KapiBekle();
@@ -231,7 +350,7 @@ public class Musteri : MonoBehaviour
     // Geçiş bittiyse ve söylenecek cümle varsa söyle
     void BekleyenCumleyiSoyle()
     {
-        if (bekleyenCumle != null && (bekliyor || asama != Asama.Yok)) YaziGoster(bekleyenCumle);
+        if (bekleyenCumle != null && (bekliyor || asama != Asama.Yok || saldiriyor)) YaziGoster(bekleyenCumle);
         bekleyenCumle = null;
     }
 
