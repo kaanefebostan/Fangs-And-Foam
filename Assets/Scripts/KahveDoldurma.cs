@@ -17,6 +17,7 @@ public class KahveDoldurma : MonoBehaviour
     public SpriteRenderer bardakCerceve; // Bardağın arkasındaki sarı çerçeve (boş kalabilir)
     public Musteri musteri;          // Kahveyi bekleyen müşteri
     public TMP_Text bardakYazisi;    // Bardakta ne olduğunu gösteren yazı
+    public ServisAnimasyonu servisAnimasyonu; // Servis edince bardak canavara kayar (boş kalabilir)
 
     [Header("Ayarlar")]
     public float dolmaHizi = 0.5f;   // Saniyede bardağın ne kadarı dolar
@@ -323,8 +324,36 @@ public class KahveDoldurma : MonoBehaviour
         }
 
         Debug.Log("Siparis: " + siparis + " | Bardakta: " + string.Join(" + ", icindekiler) + " | Sonuc: " + kalite);
+
+        // Bardağın kopyası canavara gider, gerçek bardak boşalır
+        if (servisAnimasyonu != null)
+        {
+            servisAnimasyonu.Oynat(SiviRengi());
+            BardagiBosalt();
+            hedefCizgi.gameObject.SetActive(false);
+        }
+
         YaziyiSil();
         musteri.KahveGeldi(kalite);
+    }
+
+    // Bardaktaki sıvının ortalama rengi (servis animasyonu için)
+    Color SiviRengi()
+    {
+        Color toplam = Color.clear;
+        int sayi = 0;
+        foreach (GameObject k in katmanlar)
+        {
+            if (k == null) continue;
+            SpriteRenderer sr = k.GetComponent<SpriteRenderer>();
+            if (sr == null) continue;
+            toplam += sr.color;
+            sayi++;
+        }
+        if (sayi == 0) return new Color(0.35f, 0.2f, 0.1f, 1f);
+        Color ortalama = toplam / sayi;
+        ortalama.a = 1f;
+        return ortalama;
     }
 
     // Bardaktakiler tarifle aynı mı (sıra önemli değil)

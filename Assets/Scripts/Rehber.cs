@@ -23,6 +23,7 @@ public class Rehber : MonoBehaviour
     public float sonIpucuSuresi = 4f;
 
     bool basladi = false;   // İlk müşteri içeri girdi mi
+    bool siparisVerdi = false; // İlk müşteri sipariş verdi mi
     bool bitti = false;
     float sonSayac = -1f;
 
@@ -75,9 +76,11 @@ public class Rehber : MonoBehaviour
         // Canavar soru soruyor ya da tepki veriyor
         if (!musteri.IcerideBekliyor)
         {
-            Goster(kahveDoldurma.KahveVar ? "" : soruIpucu);
+            // Sipariş vermeden önceyse soru soruyordur, sonraysa kahve servis edildi
+            Goster(siparisVerdi ? "" : soruIpucu);
             return;
         }
+        siparisVerdi = true;
 
         // Kahve yapımı
         bool kahveSecili = kahveDoldurma.Secili != null && kahveDoldurma.Secili.malzemeAdi == "Kahve";
