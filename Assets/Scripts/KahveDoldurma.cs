@@ -53,6 +53,7 @@ public class KahveDoldurma : MonoBehaviour
     public float SiviUstY => bardakAlt + Mathf.Min(doluluk, 1f) * bardakBoyu;
     public float BardakX => bardak.position.x;
     public float BardakUstY => bardakAlt + bardakBoyu;
+    public bool KahveVar => icindekiler.Contains("Kahve");   // Buhar efekti için
 
     void Awake()
     {

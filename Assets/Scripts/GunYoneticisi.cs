@@ -27,6 +27,10 @@ public class GunYoneticisi : MonoBehaviour
     [Header("Geçiş efekti")]
     public float belirmeSuresi = 0.6f;   // Gün ekranı kaç saniyede kararıp belirir
 
+    [Header("Oyun sonu")]
+    [TextArea(2, 6)]
+    public string ekipMetni = "Berra Naz Saka\nAhmet Sait Araz\nKaan Efe Bostan\nAli Emre Çamalan";
+
     [Header("Başlangıç")]
     public bool menuyuBekle = true;  // İşaretliyse oyun ana menüden başlatılır
 
@@ -139,7 +143,7 @@ public class GunYoneticisi : MonoBehaviour
             kazandi = true;
             PlayerPrefs.DeleteKey(KayitAnahtari);   // Oyun bitti, kayda gerek yok
             PlayerPrefs.Save();
-            PaneliAc("KAFE HAYATTA KALDI\n<size=60%>...şimdilik\n\nEnter: menüye dön</size>");
+            PaneliAc("KAFE HAYATTA KALDI\n<size=60%>...şimdilik\n\n<size=80%>Fangs & Foam ekibi:\n" + ekipMetni + "</size>\n\nEnter: menüye dön</size>");
             return;
         }
 

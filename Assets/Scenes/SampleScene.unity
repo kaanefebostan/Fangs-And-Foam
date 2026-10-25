@@ -1289,7 +1289,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 809fd7ea096b2284883f11fd99357dea, type: 3}
   normalMuzik: {fileID: 0}
   karanlikMuzik: {fileID: 0}
-  sesSeviyesi: 0.25
+  sesSeviyesi: 0.2
   gecisSuresi: 1.5
 --- !u!1 &275907186
 GameObject:
@@ -2169,6 +2169,7 @@ MonoBehaviour:
   gunYazisi: {fileID: 2116030482}
   gunPaneli: {fileID: 1616309065}
   belirmeSuresi: 0.6
+  ekipMetni: "Berra Naz Saka\nAhmet Sait Araz\nKaan Efe Bostan\nAli Emre \xC7amalan"
   menuyuBekle: 1
   gunler:
   - kahveler:
@@ -2819,6 +2820,7 @@ Transform:
   - {fileID: 1600724046}
   - {fileID: 819693369}
   - {fileID: 182231106}
+  - {fileID: 1541707644}
   m_Father: {fileID: 1704459514}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &503687984
@@ -3704,6 +3706,7 @@ MonoBehaviour:
   uyariMetni: "<b>UYARI</b>\r\n\r\nBu oyun kan ve \u015Fiddet i\xE7eren, baz\u0131 oyuncular i\xE7in rahats\u0131z edici olabilecek g\xF6r\xFCnt\xFCler, ani korkutmalar (jumpscare), yan\u0131p s\xF6nen \u0131\u015F\u0131klar ve ekran sars\u0131nt\u0131s\u0131 i\xE7ermektedir.\r\n\r\nI\u015F\u0131\u011Fa duyarl\u0131 epilepsi ya da benzeri bir rahats\u0131zl\u0131\u011F\u0131n\u0131z varsa oynaman\u0131z \xF6nerilmez."
   devamIpucu: "\n\n<size=70%>Devam etmek i\xE7in t\u0131kla ya da Enter'a bas</size>"
   uyariEnAzSure: 2
+  ekipMetni: "Berra Naz Saka  -  Ahmet Sait Araz  -  Kaan Efe Bostan  -  Ali Emre \xC7amalan"
   kontrollerMetni: "Sol t\u0131k: malzeme se\xE7, kap\u0131ya t\u0131kla\nSPACE (bas\u0131l\u0131 tut): d\xF6k\n\u015Eurup: \u015Fi\u015Feye, sonra barda\u011Fa t\u0131kla\nE: servis et     R: barda\u011F\u0131 bo\u015Falt\nA / D: tarif kitab\u0131 sayfas\u0131\nESC: duraklat"
 --- !u!4 &680286606
 Transform:
@@ -5321,6 +5324,135 @@ RectTransform:
   m_AnchoredPosition: {x: 2.2, y: 1.35}
   m_SizeDelta: {x: 1, y: 0.3}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &968123651
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 968123654}
+  - component: {fileID: 968123653}
+  - component: {fileID: 968123652}
+  m_Layer: 0
+  m_Name: Simsek
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &968123652
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 968123651}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f39b5efd63bccea4785d02a55df840ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Simsek
+  enAzBekleme: 20
+  enFazlaBekleme: 40
+  ilkBekleme: 8
+  enParlak: 2
+  gokGurultusu: {fileID: 0}
+  sesSeviyesi: 0.5
+  sesGecikmesiEnAz: 0.4
+  sesGecikmesiEnFazla: 1.5
+--- !u!114 &968123653
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 968123651}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 073797afb82c5a1438f328866b10b3f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.Light2D
+  m_ComponentVersion: 4
+  m_LightType: 3
+  m_BlendStyleIndex: 0
+  m_Light2DProvider:
+    rid: -2
+  m_SelectionSources:
+    rid: 2038544610935439437
+  m_FalloffIntensity: 0.5
+  m_Color: {r: 0.8666667, g: 0.9098039, b: 1, a: 1}
+  m_Intensity: 0
+  m_LightVolumeIntensity: 1
+  m_LightVolumeEnabled: 0
+  m_ApplyToSortingLayers: 00000000i
+  m_LightCookieSprite: {fileID: 0}
+  m_DeprecatedPointLightCookieSprite: {fileID: 0}
+  m_LightOrder: 0
+  m_AlphaBlendOnOverlap: 0
+  m_OverlapOperation: 0
+  m_NormalMapDistance: 3
+  m_NormalMapQuality: 2
+  m_UseNormalMap: 0
+  m_ShadowsEnabled: 1
+  m_ShadowIntensity: 0.75
+  m_ShadowSoftness: 0.3
+  m_ShadowSoftnessFalloffIntensity: 0.5
+  m_ShadowVolumeIntensityEnabled: 0
+  m_ShadowVolumeIntensity: 0.75
+  m_RenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_LocalBounds:
+    m_Center: {x: 0, y: -0.00000011920929, z: 0}
+    m_Extent: {x: 0.9985302, y: 0.99853027, z: 0}
+  m_PointLightInnerAngle: 360
+  m_PointLightOuterAngle: 360
+  m_PointLightInnerRadius: 0
+  m_PointLightOuterRadius: 3.5
+  m_ShapeLightParametricSides: 5
+  m_ShapeLightParametricAngleOffset: 0
+  m_ShapeLightParametricRadius: 1
+  m_ShapeLightFalloffSize: 0.5
+  m_ShapeLightFalloffOffset: {x: 0, y: 0}
+  m_ShapePath:
+  - {x: -0.5, y: -0.5, z: 0}
+  - {x: 0.5, y: -0.5, z: 0}
+  - {x: 0.5, y: 0.5, z: 0}
+  - {x: -0.5, y: 0.5, z: 0}
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 2038544610935439437
+      type: {class: Light2DProviderSources, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
+      data:
+        m_SelectedHashCode: 3
+        m_SelectedSource:
+          rid: -2
+        m_Provider2DCache:
+          rid: 2038544610935439438
+    - rid: 2038544610935439438
+      type: {class: 'Provider2DCache`1[[UnityEngine.Rendering.Universal.Light2DProvider, Unity.RenderPipelines.Universal.2D.Runtime]]', ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
+      data:
+        m_Cache: []
+--- !u!4 &968123654
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 968123651}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.3, y: 1.6, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &979683335
 GameObject:
   m_ObjectHideFlags: 0
@@ -7028,6 +7160,115 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UzerineGelinceParla
   parlakResim: {fileID: 21300000, guid: 4e97af23524e58645afc46fd8a05933f, type: 3}
+--- !u!1 &1541707643
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1541707644}
+  - component: {fileID: 1541707645}
+  m_Layer: 0
+  m_Name: Yapraklar
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1541707644
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1541707643}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 503687983}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1541707645
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1541707643}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcca8a91d967cff4cb7e2a0528df89fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DusenYapraklar
+  yapraklar:
+  - {fileID: 21300000, guid: 411cf2d4cf7364d419c2c158defbcf32, type: 3}
+  - {fileID: 21300000, guid: 0f3de8a9d778f6d44bec2eb6f664e112, type: 3}
+  - {fileID: 21300000, guid: 48a31a47309f8d94b891dfa0e29f8467, type: 3}
+  siralama: 201
+  isiksizMateryal: {fileID: 2100000, guid: 18da883461c351c4ebc2f6f971eda421, type: 2}
+  aralik: 0.7
+  enAzHiz: 0.25
+  enFazlaHiz: 0.45
+  salinim: 0.25
+  genislik: 3.3
+  yukseklik: 1.9
+--- !u!1 &1550086786
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1550086788}
+  - component: {fileID: 1550086787}
+  m_Layer: 0
+  m_Name: Buhar
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1550086787
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1550086786}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd091bb8daf14a847851a59c0dc422e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Buhar
+  kahveDoldurma: {fileID: 315017135}
+  renk: {r: 1, g: 1, b: 1, a: 0.45}
+  pikselBoyu: 0.02
+  siralama: 12
+  isiksizMateryal: {fileID: 2100000, guid: 18da883461c351c4ebc2f6f971eda421, type: 2}
+  aralik: 0.18
+  omur: 1.6
+  yukselme: 0.35
+  genislik: 0.1
+--- !u!4 &1550086788
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1550086786}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.30711, y: 0.93367, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1551902550
 GameObject:
   m_ObjectHideFlags: 0
@@ -8334,6 +8575,151 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
   m_BlendShapeWeights: []
+--- !u!1 &1764202178
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1764202180}
+  - component: {fileID: 1764202179}
+  - component: {fileID: 1764202181}
+  m_Layer: 0
+  m_Name: YagmurSesi
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!82 &1764202179
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1764202178}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 8300000, guid: 83d2cef3379ea4147a02918a3b61412a, type: 3}
+  m_PlayOnAwake: 1
+  m_Volume: 0.4
+  m_Pitch: 1
+  Loop: 1
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!4 &1764202180
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1764202178}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.30711, y: 0.93367, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1764202181
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1764202178}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 976ad6b7535e87441affd46edfe2e440, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::YagmurKontrol
+  musteri: {fileID: 1243743012}
+  sesSeviyesi: 0.03
+  gecisSuresi: 1.5
 --- !u!1 &1796860000
 GameObject:
   m_ObjectHideFlags: 0
@@ -10870,3 +11256,6 @@ SceneRoots:
   - {fileID: 938807492}
   - {fileID: 491326369}
   - {fileID: 961153498}
+  - {fileID: 968123654}
+  - {fileID: 1764202180}
+  - {fileID: 1550086788}

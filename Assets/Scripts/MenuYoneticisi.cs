@@ -60,6 +60,9 @@ public class MenuYoneticisi : MonoBehaviour
     public string devamIpucu = "\n\n<size=70%>Devam etmek için tıkla ya da Enter'a bas</size>";
     public float uyariEnAzSure = 2f;   // Uyarı en az kaç saniye ekranda kalır
 
+    [Header("Ekip")]
+    public string ekipMetni = "Berra Naz Saka  -  Ahmet Sait Araz  -  Kaan Efe Bostan  -  Ali Emre Çamalan";
+
     [Header("Kontroller")]
     [TextArea(6, 14)]
     public string kontrollerMetni =
@@ -115,6 +118,11 @@ public class MenuYoneticisi : MonoBehaviour
         playButonu = ResimButonu("PlayButonu", kok, playParlak, new Vector2(0.03f, 0.04f), new Vector2(1.95f, 0.72f));
         ayarlarButonu = ResimButonu("SettingsButonu", kok, ayarlarParlak, new Vector2(0f, -0.67f), new Vector2(1.66f, 0.42f));
         cikisButonu = ResimButonu("ExitButonu", kok, cikisParlak, new Vector2(-0.02f, -1.24f), new Vector2(1.05f, 0.44f));
+
+        // Ekibin isimleri, menünün en altında küçük yazı
+        TextMeshPro ekip = YaziEkle(kok, "EkipYazisi", ekipMetni, new Vector2(0f, -1.7f), 1.0f, kremRenk, new Vector2(6.2f, 0.2f), TextAlignmentOptions.Center);
+        ekip.sortingOrder = siralama + 1;
+        ekip.alpha = 0.8f;
 
         // PLAY penceresi
         oyunPenceresi = PencereKur("OyunPenceresi", kok, "OYNA");
