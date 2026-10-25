@@ -301,6 +301,9 @@ public class KahveDoldurma : MonoBehaviour
 
     void ServisEt()
     {
+        // Dökerken E'ye basıldıysa: önce dökmeyi bitir, o döküm de puana sayılsın
+        if (dokuyor) DokmeyiBitir();
+
         aktif = false;
         dokuyor = false;
         Sesler.DokmeDur();

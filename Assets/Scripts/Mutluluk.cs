@@ -100,10 +100,11 @@ public class Mutluluk : MonoBehaviour
     }
 
     // Müşteri, kahvenin sonucunu buraya söyler
-    public void SonucaGoreDegistir(string sonuc)
+    // bonus: mükemmel serisinden gelen ekstra mutluluk
+    public void SonucaGoreDegistir(string sonuc, float bonus = 0f)
     {
-        if (sonuc == "MUKEMMEL") Degistir(mukemmel);
-        else if (sonuc == "IYI") Degistir(iyi);
+        if (sonuc == "MUKEMMEL") Degistir(mukemmel + bonus);
+        else if (sonuc == "IYI") Degistir(iyi + bonus);
         else if (sonuc == "TASTI") Degistir(tasti);
         else if (sonuc == "YANLIS") Degistir(yanlis);
         else if (sonuc == "GEC") Degistir(gecKalma);

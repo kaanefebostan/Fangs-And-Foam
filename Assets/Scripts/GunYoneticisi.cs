@@ -135,7 +135,8 @@ public class GunYoneticisi : MonoBehaviour
     // Gün sonu ekranı (ya da son günse kazanma ekranı)
     public void GunSonuGoster()
     {
-        string ozet = GunAdi() + " GÜN BİTTİ\n<size=60%>Memnun müşteri: " + memnunMusteri + " / " + bitenMusteri + "\n\n";
+        string ozet = GunAdi() + " GÜN BİTTİ\n<size=60%>" + Yildizlar() + "\nMemnun müşteri: " + memnunMusteri + " / " + bitenMusteri
+                      + "\nKafenin güveni: %" + Mathf.RoundToInt(musteri.Guven) + "\n\n";
 
         gun++;
         if (gun >= gunler.Length)
@@ -152,6 +153,17 @@ public class GunYoneticisi : MonoBehaviour
         PlayerPrefs.Save();
 
         PaneliAc(ozet + GunAdi() + " GÜN: " + gunler[gun].gunNotu + "\n\nEnter: devam</size>");
+    }
+
+    // Günün başarısına göre 1-3 yıldız (yıldız işareti fontta olmayabilir, o yüzden renkli * kullanılıyor)
+    string Yildizlar()
+    {
+        float oran = bitenMusteri > 0 ? (float)memnunMusteri / bitenMusteri : 0f;
+        int yildiz = oran >= 0.75f ? 3 : (oran >= 0.4f ? 2 : 1);
+        string sonuc = "<size=160%>";
+        for (int i = 0; i < 3; i++)
+            sonuc += i < yildiz ? "<color=#FFD34D>*</color> " : "<color=#555555>*</color> ";
+        return sonuc + "</size>";
     }
 
     void PaneliAc(string metin)

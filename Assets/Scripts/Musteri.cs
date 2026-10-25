@@ -75,6 +75,10 @@ public class Musteri : MonoBehaviour
     public TMP_Text oyuncuYazisi;           // Şeridin içindeki yazı (Daktilo eklenirse harf harf yazar)
     public float oyuncuSonrasiBekleme = 1.2f; // Oyuncunun sözü bittikten sonra bekleme
 
+    [Header("Mükemmel serisi")]
+    public float seriBonusu = 5f;        // Serinin her adımında ekstra mutluluk (x2 = +5, x3 = +10...)
+    public float enFazlaSeriBonusu = 15f;
+
     [Header("Kafenin güveni")]
     public TMP_Text guvenYazisi;            // "Güven %85" yazısı (boş kalabilir)
     public float iyiCevapGuven = 5f;        // İyi cevapta güven artışı
@@ -106,6 +110,7 @@ public class Musteri : MonoBehaviour
     float sabirSuresi = 20f;
     float agizSayac;
     int sonAgizKaresi = -1;
+    int seri = 0;          // Arka arkaya kaç mükemmel kahve
     string bekleyenCumle;  // Geçiş animasyonu bitince söylenecek cümle
 
     // Torba sistemi: her canavar bir kez gelmeden hiçbiri tekrar gelmez
@@ -342,6 +347,7 @@ public class Musteri : MonoBehaviour
 
         // Her gün torba yeniden dolar: günde canavar sayısı kadar müşteri gelirse hepsi farklı olur
         torba.Clear();
+        seri = 0;
 
         YeniMusteri();
     }
@@ -772,6 +778,20 @@ public class Musteri : MonoBehaviour
         bekleyenCumle = null;
         CancelInvoke(nameof(GuvenMesajiniSil));
         sonucYazisi.text = Renklendir(mesaj, sonuc);
+
+        // Mükemmel serisi: arka arkaya mükemmel kahve ekstra mutluluk verir
+        float bonus = 0f;
+        if (sonuc == "MUKEMMEL")
+        {
+            seri++;
+            if (seri >= 2)
+            {
+                bonus = Mathf.Min(seriBonusu * (seri - 1), enFazlaSeriBonusu);
+                sonucYazisi.text += "\n<size=55%><color=" + SariRenk + ">SERİ x" + seri + "!</color></size>";
+            }
+        }
+        else seri = 0;
+
         if (sonuc == "MUKEMMEL") Tepki(true, 4);
         else if (sonuc == "IYI") Tepki(true, 2);
         else Tepki(false, 4);
@@ -780,7 +800,7 @@ public class Musteri : MonoBehaviour
         if (halResmi != null && !gecisOynuyor) gorsel.sprite = halResmi; // ağız açık kalmasın
 
         // Kafenin mutluluğunu değiştir
-        mutluluk.SonucaGoreDegistir(sonuc);
+        mutluluk.SonucaGoreDegistir(sonuc, bonus);
 
         // Mutluluk bittiyse yeni müşteri gelmesin
         if (mutluluk.OyunBitti)
