@@ -23,6 +23,7 @@ public class Musteri : MonoBehaviour
     public GameObject baloncuk;         // Konuşma baloncuğu (boş kalabilir)
     public ParticleSystem gecisEfekti;  // Hal değişirken çıkan efekt (boş kalabilir)
     public SpriteRenderer kapiUyarisi;  // Canavar kapıdayken kapının üstünde zıplayan ünlem (boş kalabilir)
+    public TepkiEfekti tepkiEfekti;     // Kalp / duman efekti (boş kalabilir)
 
     [Header("Canavarlar (Canavar Turu kartlarını buraya sürükle)")]
     public CanavarTuru[] canavarlar;
@@ -171,6 +172,9 @@ public class Musteri : MonoBehaviour
 
     // Müşteri içeride kahve bekliyor mu (korku efektleri için)
     public bool IcerideBekliyor => bekliyor;
+
+    // Canavar kapıda mı bekliyor (rehber için)
+    public bool KapidaBekliyor => kapidaBekliyor;
 
     // Canavar içeride mi (soru sorarken, beklerken ya da tepki verirken)
     public bool IcerideMi => gorsel != null && gorsel.enabled && !kapidaBekliyor;
@@ -644,6 +648,7 @@ public class Musteri : MonoBehaviour
         }
 
         sonucYazisi.text = iyi ? GuvenArttiMesaji : GuvenAzaldiMesaji;
+        Tepki(iyi, iyi ? 2 : 3);
         CancelInvoke(nameof(GuvenMesajiniSil));
         Invoke(nameof(GuvenMesajiniSil), 1.5f);
 
@@ -767,6 +772,9 @@ public class Musteri : MonoBehaviour
         bekleyenCumle = null;
         CancelInvoke(nameof(GuvenMesajiniSil));
         sonucYazisi.text = Renklendir(mesaj, sonuc);
+        if (sonuc == "MUKEMMEL") Tepki(true, 4);
+        else if (sonuc == "IYI") Tepki(true, 2);
+        else Tepki(false, 4);
         YaziTemizle();
         if (baloncuk != null) baloncuk.SetActive(false);
         if (halResmi != null && !gecisOynuyor) gorsel.sprite = halResmi; // ağız açık kalmasın
@@ -1032,6 +1040,15 @@ public class Musteri : MonoBehaviour
         transform.position = asilKonum;
         transform.localScale = asilBoyut;
         titriyor = false;
+    }
+
+    // Canavarın başının üstünden kalp ya da duman çıkar
+    void Tepki(bool iyi, int adet)
+    {
+        if (tepkiEfekti == null || gorsel == null) return;
+        Bounds b = gorsel.bounds;
+        Vector3 bas = new Vector3(b.center.x, b.max.y - 0.25f, 0f);
+        tepkiEfekti.Oynat(iyi, bas, adet);
     }
 
     // Canavar kapıda beklerken kapının üstündeki ünlem görünür ve zıplar
