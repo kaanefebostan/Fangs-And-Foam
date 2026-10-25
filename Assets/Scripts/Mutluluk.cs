@@ -14,6 +14,7 @@ public class Mutluluk : MonoBehaviour
     public SpriteRenderer karartma;     // Tüm ekranı kaplayan siyah kutu
     public SpriteRenderer bant;         // Yazının arkasındaki siyah şerit
     public KorkuEfektleri korku;        // Jumpscare'i oynatır (boş kalabilir)
+    public TMP_Text ucanYazi;           // Barın altında çıkıp yukarı süzülen "+15" / "-20" yazısı (boş kalabilir)
 
     [Header("Ayarlar")]
     public float baslangic = 70f;       // Oyun başındaki mutluluk
@@ -51,7 +52,9 @@ public class Mutluluk : MonoBehaviour
     bool yenidenBaslayabilir = false;
     string ozelMetin;
     float gosterilen;   // Çubukta şu an görünen değer (gerçek değere doğru yavaşça gider)
-    float parlama;      // Parlamanın kalan süresi   // Saldırıyla biterse "KAFE KAPANDI" yerine yazılacak metin
+    float parlama;      // Parlamanın kalan süresi
+    Coroutine ucanRutin;
+    Vector3 ucanYaziKonum;   // Saldırıyla biterse "KAFE KAPANDI" yerine yazılacak metin
 
     void Awake()
     {
@@ -61,6 +64,11 @@ public class Mutluluk : MonoBehaviour
 
         Deger = baslangic;
         gosterilen = Deger;
+        if (ucanYazi != null)
+        {
+            ucanYaziKonum = ucanYazi.transform.position;
+            ucanYazi.text = "";
+        }
         if (oyunBittiYazisi != null) oyunBittiYazisi.text = "";
         SaydamlikAyarla(karartma, 0f);
         SaydamlikAyarla(bant, 0f);
@@ -106,8 +114,10 @@ public class Mutluluk : MonoBehaviour
     {
         if (OyunBitti) return;
 
+        float eski = Deger;
         Deger = Mathf.Clamp(Deger + miktar, 0f, enFazla);
         parlama = parlamaSuresi;
+        UcanYaziGoster(Deger - eski);
         Ciz();
 
         if (Deger <= 0f)
@@ -115,6 +125,37 @@ public class Mutluluk : MonoBehaviour
             OyunBitti = true;
             StartCoroutine(OyunSonuEkrani());
         }
+    }
+
+    // Barın altında "+15" ya da "-20" çıkar, yukarı süzülüp kaybolur
+    void UcanYaziGoster(float fark)
+    {
+        if (ucanYazi == null) return;
+        int tam = Mathf.RoundToInt(fark);
+        if (tam == 0) return;
+
+        if (ucanRutin != null) StopCoroutine(ucanRutin);
+        ucanRutin = StartCoroutine(UcanYazi(tam));
+    }
+
+    IEnumerator UcanYazi(int fark)
+    {
+        ucanYazi.text = (fark > 0 ? "+" : "") + fark;
+        Color renk = fark > 0 ? iyiRenk : kotuRenk;
+        float sure = 1.2f;
+        float t = 0f;
+        while (t < sure)
+        {
+            t += Time.deltaTime;
+            float o = Mathf.Clamp01(t / sure);
+            ucanYazi.transform.position = ucanYaziKonum + Vector3.up * (0.25f * o);
+            renk.a = o < 0.6f ? 1f : 1f - (o - 0.6f) / 0.4f; // sonda yavaşça kaybolur
+            ucanYazi.color = renk;
+            yield return null;
+        }
+        ucanYazi.text = "";
+        ucanYazi.transform.position = ucanYaziKonum;
+        ucanRutin = null;
     }
 
     // Bir canavar saldırdı: mutluluk ne olursa olsun oyun hemen biter

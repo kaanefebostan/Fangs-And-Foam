@@ -158,6 +158,14 @@ public class KahveDoldurma : MonoBehaviour
         aktif = false;
         dokuyor = false;
         Sesler.DokmeDur();
+        YaziyiSil();
+    }
+
+    // Müşteri gidince "Seçili: ..." yazısı ekranda kalmasın
+    void YaziyiSil()
+    {
+        secili = null;
+        if (bardakYazisi != null) bardakYazisi.text = "";
     }
 
     // Gün bitince bardağı ve yazıyı temizler
@@ -314,6 +322,7 @@ public class KahveDoldurma : MonoBehaviour
         }
 
         Debug.Log("Siparis: " + siparis + " | Bardakta: " + string.Join(" + ", icindekiler) + " | Sonuc: " + kalite);
+        YaziyiSil();
         musteri.KahveGeldi(kalite);
     }
 
@@ -342,6 +351,7 @@ public class KahveDoldurma : MonoBehaviour
             case "Americano": return new[] { "Kahve", "Su" };
             case "Latte": return new[] { "Kahve", "Sut" };
             case "Pumpkin Spice Latte": return new[] { "Kahve", "Sut", "Surup" };
+            case "Türk Kahvesi": return new[] { "Kahve", "Su", "Seker" };
         }
         return new string[0];
     }

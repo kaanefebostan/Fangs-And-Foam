@@ -24,6 +24,9 @@ public class GunYoneticisi : MonoBehaviour
     public TMP_Text gunYazisi;       // Gün başı / gün sonu yazısı
     public SpriteRenderer gunPaneli; // Yazının arkasındaki karanlık ekran
 
+    [Header("Geçiş efekti")]
+    public float belirmeSuresi = 0.6f;   // Gün ekranı kaç saniyede kararıp belirir
+
     [Header("Başlangıç")]
     public bool menuyuBekle = true;  // İşaretliyse oyun ana menüden başlatılır
 
@@ -48,6 +51,8 @@ public class GunYoneticisi : MonoBehaviour
     bool enterBekliyor = false;
     bool kazandi = false;
     int acilisKaresi = -1;    // Menüdeki Enter, gün ekranını hemen geçmesin diye
+    float panelSaydamlik = 1f; // Gün panelinin asıl saydamlığı
+    Coroutine belirmeRutini;
 
     public int GunNumarasi => gun + 1;
     public float SabirCarpani => gunler[gun].sabirCarpani;
@@ -71,6 +76,7 @@ public class GunYoneticisi : MonoBehaviour
 
     void Start()
     {
+        if (gunPaneli != null) panelSaydamlik = gunPaneli.color.a;
         gunYazisi.gameObject.SetActive(false);
         if (gunPaneli != null) gunPaneli.gameObject.SetActive(false);
 
@@ -150,6 +156,38 @@ public class GunYoneticisi : MonoBehaviour
         gunYazisi.gameObject.SetActive(true);
         if (gunPaneli != null) gunPaneli.gameObject.SetActive(true);
         enterBekliyor = true;
+
+        if (belirmeRutini != null) StopCoroutine(belirmeRutini);
+        belirmeRutini = StartCoroutine(Belir());
+    }
+
+    // Ekran yavaşça kararır, yazı biraz gecikmeyle belirir
+    System.Collections.IEnumerator Belir()
+    {
+        float t = 0f;
+        while (t < belirmeSuresi)
+        {
+            t += Time.unscaledDeltaTime;
+            float o = Mathf.Clamp01(t / belirmeSuresi);
+            float yumusak = o * o * (3f - 2f * o);
+
+            if (gunPaneli != null)
+            {
+                Color c = gunPaneli.color;
+                c.a = panelSaydamlik * yumusak;
+                gunPaneli.color = c;
+            }
+            gunYazisi.alpha = Mathf.Clamp01((o - 0.3f) / 0.7f); // yazı biraz sonra gelsin
+            yield return null;
+        }
+        if (gunPaneli != null)
+        {
+            Color c = gunPaneli.color;
+            c.a = panelSaydamlik;
+            gunPaneli.color = c;
+        }
+        gunYazisi.alpha = 1f;
+        belirmeRutini = null;
     }
 
     void PaneliKapat()

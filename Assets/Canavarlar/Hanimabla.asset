@@ -15,13 +15,13 @@ MonoBehaviour:
   canavarAdi: Hanimabla
   mutluResim: {fileID: 21300000, guid: d593e12f07c943044b7702681360a29b, type: 3}
   notrResim: {fileID: 21300000, guid: d7a2016978e34d44e9da93426c5e10ff, type: 3}
-  kizginResim: {fileID: 21300000, guid: 5c019a555e153464a98c32f7a194fb98, type: 3}
+  kizginResim: {fileID: 21300000, guid: d926867d1760e2f49a1cebe04364e57f, type: 3}
   jumpscareResmi: {fileID: 0}
   mutluKonusma:
   - {fileID: 21300000, guid: da65aa6e4bd89c741a12a1804ffa9b96, type: 3}
   notrKonusma: []
   kizginKonusma:
-  - {fileID: 21300000, guid: 351041464a83aeb408f729eb125dd661, type: 3}
+  - {fileID: 21300000, guid: d926867d1760e2f49a1cebe04364e57f, type: 3}
   mutluAgizAcik: {fileID: 0}
   notrAgizAcik: {fileID: 0}
   kizginAgizAcik: {fileID: 0}
@@ -41,6 +41,8 @@ MonoBehaviour:
   - "Bana \xF6l\xFCm kadar s\u0131cak bir AMERICANO yap."
   latteCumleleri: []
   pslCumleleri: []
+  turkKahvesiCumleleri: []
   notreGecinceCumleleri: []
   kizginaGecinceCumleleri:
   - "H\xC2L\xC2 {KAHVE} YOK MU?!"
+  sorular: []

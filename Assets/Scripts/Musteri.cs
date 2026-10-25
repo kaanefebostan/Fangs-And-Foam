@@ -22,6 +22,7 @@ public class Musteri : MonoBehaviour
     public SpriteRenderer kapi;         // Tıklanınca müşteriyi içeri alan kapı
     public GameObject baloncuk;         // Konuşma baloncuğu (boş kalabilir)
     public ParticleSystem gecisEfekti;  // Hal değişirken çıkan efekt (boş kalabilir)
+    public SpriteRenderer kapiUyarisi;  // Canavar kapıdayken kapının üstünde zıplayan ünlem (boş kalabilir)
 
     [Header("Canavarlar (Canavar Turu kartlarını buraya sürükle)")]
     public CanavarTuru[] canavarlar;
@@ -100,6 +101,7 @@ public class Musteri : MonoBehaviour
     bool titriyor = false;          // Titre animasyonu oynuyor mu
     bool animasyonOynuyor = false;  // Giriş/çıkış animasyonu oynuyor mu
     SpriteRenderer sabirGorsel;
+    Vector3 kapiUyarisiKonum;
     float sabirSuresi = 20f;
     float agizSayac;
     int sonAgizKaresi = -1;
@@ -148,6 +150,11 @@ public class Musteri : MonoBehaviour
         cubukTamBoy = sabirCubugu.localScale.x;
         cubukSolKenar = sabirCubugu.position.x - cubukTamBoy / 2f;
         sabirGorsel = sabirCubugu.GetComponent<SpriteRenderer>();
+        if (kapiUyarisi != null)
+        {
+            kapiUyarisiKonum = kapiUyarisi.transform.position;
+            kapiUyarisi.enabled = false;
+        }
 
         // Gün başlayana kadar ortada kimse yok
         gorsel.enabled = false;
@@ -291,7 +298,7 @@ public class Musteri : MonoBehaviour
             saldiriSayac = 1f;
 
             if (baloncuk != null) baloncuk.SetActive(true);
-            HaleGec(2, false);
+            Kiz();
             bekleyenCumle = string.IsNullOrEmpty(saldiriCanavarCumlesi) ? null : saldiriCanavarCumlesi;
             if (!gecisOynuyor) BekleyenCumleyiSoyle();
         }
@@ -329,12 +336,16 @@ public class Musteri : MonoBehaviour
         }
         GuvenYazisiniGuncelle();
 
+        // Her gün torba yeniden dolar: günde canavar sayısı kadar müşteri gelirse hepsi farklı olur
+        torba.Clear();
+
         YeniMusteri();
     }
 
     void Update()
     {
         if (DuraklatmaMenusu.Acik) return;
+        KapiUyarisiniGuncelle();
 
         // Saldırı sahnesi oynuyor: ağız oynar, başka hiçbir şey olmaz
         if (saldiriyor)
@@ -373,7 +384,7 @@ public class Musteri : MonoBehaviour
         if (kalanSabir <= 0f)
         {
             kahveDoldurma.Durdur();
-            HaleGec(2, false);
+            Kiz();
             Bitir("GEÇ KALDIN!", "GEC");
         }
     }
@@ -735,17 +746,17 @@ public class Musteri : MonoBehaviour
         }
         else if (kalite == "TASTI")
         {
-            HaleGec(2, false);
+            Kiz();
             Bitir("TAŞTI!", kalite);
         }
         else if (kalite == "YANLIS")
         {
-            HaleGec(2, false);
+            Kiz();
             Bitir("YANLIŞ KAHVE!", kalite);
         }
         else
         {
-            HaleGec(2, false);
+            Kiz();
             Bitir("KÖTÜ...", kalite);
         }
     }
@@ -887,6 +898,24 @@ public class Musteri : MonoBehaviour
         kapiSayac = kapiSabri;
     }
 
+    // Kötü sonuç: canavar zaten kızgınsa bile kızgın sesi çalar ve titrer
+    void Kiz()
+    {
+        if (hal == 2)
+        {
+            if (tur.kizginSesi != null) Sesler.Oynat(tur.kizginSesi);
+            KorutinleriDurdur();
+            gecisOynuyor = false;
+            transform.position = asilKonum;
+            transform.localScale = asilBoyut;
+            StartCoroutine(Titre());
+        }
+        else
+        {
+            HaleGec(2, false);
+        }
+    }
+
     // Ruh halini değiştir: geçiş animasyonunu oynat ve titret.
     // konussun = true ise geçiş bitince canavar o hale uygun bir cümle söyler.
     void HaleGec(int yeniHal, bool konussun)
@@ -1003,6 +1032,20 @@ public class Musteri : MonoBehaviour
         transform.position = asilKonum;
         transform.localScale = asilBoyut;
         titriyor = false;
+    }
+
+    // Canavar kapıda beklerken kapının üstündeki ünlem görünür ve zıplar
+    void KapiUyarisiniGuncelle()
+    {
+        if (kapiUyarisi == null) return;
+        bool goster = kapidaBekliyor && !mutluluk.OyunBitti;
+        if (kapiUyarisi.enabled != goster) kapiUyarisi.enabled = goster;
+        if (!goster) return;
+
+        // Zıplama: piksel piksel (0.01 birim) yukarı aşağı
+        float ziplama = Mathf.Abs(Mathf.Sin(Time.time * 5f)) * 0.08f;
+        ziplama = Mathf.Round(ziplama * 100f) / 100f;
+        kapiUyarisi.transform.position = kapiUyarisiKonum + Vector3.up * ziplama;
     }
 
     // Sabır barını (ve arkasındaki soluk kopyayı) gösterir ya da gizler

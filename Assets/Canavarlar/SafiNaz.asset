@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 073ad6979f7dc01428bf4ff3a045bea4, type: 3}
+  m_Name: SafiNaz
+  m_EditorClassIdentifier: Assembly-CSharp::CanavarTuru
+  canavarAdi: Canavar
+  mutluResim: {fileID: 21300000, guid: 61b14424e62379b4494040743f064dc7, type: 3}
+  notrResim: {fileID: 21300000, guid: ef2fedf5a330c1e4f97d7b04ec224569, type: 3}
+  kizginResim: {fileID: 21300000, guid: ef9dbc722f754244794e5bfd61bcd930, type: 3}
+  jumpscareResmi: {fileID: 21300000, guid: ef9dbc722f754244794e5bfd61bcd930, type: 3}
+  mutluKonusma: []
+  notrKonusma: []
+  kizginKonusma: []
+  mutluAgizAcik: {fileID: 21300000, guid: 2078c5c585397eb48899a773b4f1f68e, type: 3}
+  notrAgizAcik: {fileID: 21300000, guid: ec1077bdfa72d2f4588455e8552aebc1, type: 3}
+  kizginAgizAcik: {fileID: 21300000, guid: c3031aaa997473c4b8b3d2b7e858c8ec, type: 3}
+  mutludanNotre: []
+  notrdenKizgina: []
+  kareSuresi: 0.08
+  siyahGecisSuresi: 0.25
+  mutluRenk: {r: 0.55, g: 0, b: 1, a: 1}
+  notrRenk: {r: 1, g: 0.8, b: 0.2, a: 1}
+  kizginRenk: {r: 0.9, g: 0.1, b: 0.1, a: 1}
+  sabirSuresi: 20
+  girisSesi: {fileID: 8300000, guid: 53094e27dd9ea1e49a1539581d654565, type: 3}
+  kizginSesi: {fileID: 8300000, guid: a58221dcb1617d7458724b4cdc7a682e, type: 3}
+  espressoCumleleri: []
+  americanoCumleleri: []
+  latteCumleleri: []
+  pslCumleleri: []
+  turkKahvesiCumleleri: []
+  notreGecinceCumleleri: []
+  kizginaGecinceCumleleri: []
+  sorular: []

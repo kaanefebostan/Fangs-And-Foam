@@ -145,6 +145,7 @@ public class KorkuEfektleri : MonoBehaviour
     public IEnumerator Jumpscare()
     {
         jumpscareOynuyor = true;
+        if (Muzik.Ornek != null) Muzik.Ornek.Sustur();   // Müzik bir anda kesilsin
         Sesler.Jumpscare();
 
         // Hangi resim gösterilecek: özel resim > canavarın jumpscare resmi > kızgın hali > o anki resmi

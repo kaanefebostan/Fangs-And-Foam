@@ -2,8 +2,11 @@ using UnityEngine;
 
 // Birden fazla müziği aynı anda çalar ama sadece biri duyulur.
 // Seviye 0 = normal (1. müzik). Seviye arttıkça daha karanlık müziğe yumuşak geçiş yapar.
+// Jumpscare olunca Sustur() ile bütün müzik bir anda kesilir.
 public class Muzik : MonoBehaviour
 {
+    public static Muzik Ornek { get; private set; }   // Diğer kodlar müziğe buradan ulaşır
+
     [Header("Müzikler: en normalden en karanlığa (srk1, srk2, srk3)")]
     public AudioClip[] muzikler;
 
@@ -17,9 +20,12 @@ public class Muzik : MonoBehaviour
 
     AudioSource[] kaynaklar;
     int seviye = 0;
+    bool susturuldu = false;
 
     void Awake()
     {
+        Ornek = this;
+
         // Liste boşsa eski iki müziği kullan
         if (muzikler == null || muzikler.Length == 0)
             muzikler = new[] { normalMuzik, karanlikMuzik };
@@ -42,6 +48,13 @@ public class Muzik : MonoBehaviour
     {
         if (kaynaklar == null) return;
 
+        // Susturulduysa hepsi sessiz kalır
+        if (susturuldu)
+        {
+            foreach (AudioSource k in kaynaklar) k.volume = 0f;
+            return;
+        }
+
         // Seçili müziğin sesi açılır, diğerleri yavaşça kısılır
         float adim = sesSeviyesi / gecisSuresi * Time.deltaTime;
         for (int i = 0; i < kaynaklar.Length; i++)
@@ -56,6 +69,14 @@ public class Muzik : MonoBehaviour
     {
         if (kaynaklar == null || kaynaklar.Length == 0) return;
         seviye = Mathf.Clamp(yeniSeviye, 0, kaynaklar.Length - 1);
+    }
+
+    // Bütün müziği bir anda keser (jumpscare için). Sahne yeniden yüklenince müzik geri gelir.
+    public void Sustur()
+    {
+        susturuldu = true;
+        if (kaynaklar == null) return;
+        foreach (AudioSource k in kaynaklar) k.volume = 0f;
     }
 
     // Eski kodlar için: true = en karanlık, false = normal

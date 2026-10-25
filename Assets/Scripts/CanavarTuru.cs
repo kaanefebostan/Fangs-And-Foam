@@ -60,6 +60,7 @@ public class CanavarTuru : ScriptableObject
     [TextArea] public string[] americanoCumleleri;
     [TextArea] public string[] latteCumleleri;
     [TextArea] public string[] pslCumleleri;
+    [TextArea] public string[] turkKahvesiCumleleri;
 
     [Header("Hal değişince söylenecek cümleler (boş kalabilir, {kahve} ya da {KAHVE} kullanılabilir)")]
     [TextArea] public string[] notreGecinceCumleleri;    // Sabrı azalmaya başlayınca
@@ -76,6 +77,7 @@ public class CanavarTuru : ScriptableObject
         if (kahve == "Espresso") return "Espresso";
         if (kahve == "Americano") return "Americano";
         if (kahve == "Latte") return "Latte";
+        if (kahve == "Türk Kahvesi") return "Türk Kahvesi";
         return "Balkabaklı Latte";
     }
 
@@ -96,6 +98,7 @@ public class CanavarTuru : ScriptableObject
         if (kahve == "Espresso") liste = espressoCumleleri;
         else if (kahve == "Americano") liste = americanoCumleleri;
         else if (kahve == "Latte") liste = latteCumleleri;
+        else if (kahve == "Türk Kahvesi") liste = turkKahvesiCumleleri;
         else liste = pslCumleleri;
 
         if (liste == null || liste.Length == 0) return KahveAdi(kahve);
