@@ -35,14 +35,33 @@ MonoBehaviour:
   girisSesi: {fileID: 8300000, guid: 53094e27dd9ea1e49a1539581d654565, type: 3}
   kizginSesi: {fileID: 8300000, guid: 5a86e52325f49c54da4f16e6653891bb, type: 3}
   espressoCumleleri:
-  - aaaaaaaaaaa
+  - "D\xFCmd\xFCz espresso istiyoz. H\u0131zl\u0131 yap."
+  - "Espressoyla da birbirimiz gibi ayr\u0131lmaz olduk. Yapsana hemen bi tane."
+  - Espresso...
   americanoCumleleri:
-  - "Bana \xF6l\xFCm kadar s\u0131cak bir AMERICANO yap."
-  latteCumleleri: []
-  pslCumleleri: []
-  notreGecinceCumleleri: []
+  - "\u015Eu Americano'dan istiyoz, yap."
+  - "Bug\xFCn birbirimizi \xE7ok yorduk. Bi Americano yap da i\xE7ek."
+  - "S\u0131k\u0131ld\u0131k ya... Americano mu ne, ondan haz\u0131rla bize."
+  latteCumleleri:
+  - "Hmm, s\xFCtl\xFC \u015Feyler favorimiz. Bi latte alak biz."
+  - "\u015Eu latte denen \u015Feyden haz\u0131rla bize."
+  - Latte ver.
+  pslCumleleri:
+  - "Bu neymi\u015F ya? \u015Eu kabakl\u0131 latteden yapsana, merak ettik."
+  - "Merakl\u0131 ikizler olarak \u015Fu kabakl\u0131 lattenin tad\u0131na bakmak istiyoz."
+  - "Tar\xE7\u0131n m\u0131? Bay\u0131l\u0131r\u0131z! Pumpkin spice latte istiyoz."
+  turkKahvesiCumleleri:
+  - "Hemen bize \u015Fekerli bi T\xFCrk kahvesi yap."
+  - "T\xFCrk kahvesi istiyoz. \u015Eekerli olsun."
+  - "\u015EEKERL\u0130 T\xDCRK KAHVES\u0130!"
+  notreGecinceCumleleri:
+  - "Ni\xE7in \xF6yle bak\u0131yon? Tuhaf m\u0131 g\xF6r\xFCn\xFCyoz?"
+  - "Umar\u0131m kahve hemencecik haz\u0131r olur. Sabr\u0131m\u0131z t\xFCkeniyo."
+  - Biz burada krize girmeden o kahveyi yapsan iyi olur.
   kizginaGecinceCumleleri:
-  - "H\xC2L\xC2 {KAHVE} YOK MU?!"
+  - "Bizi oyalamaya m\u0131 \xE7al\u0131\u015F\u0131yon? SER\u0130 OL!"
+  - "Biraz daha bekletirsen i\xE7ece\u011Fimiz \u015Fey kahve olmayacak."
+  - "Neden h\xE2l\xE2 bizi izliyon enayi? YAP \u015EU KAHVEY\u0130."
   sorular:
   - soru: "Bize tuhaf bak\u0131yosun. Bizi tan\u0131yo musun?"
     cevap1: "Hay\u0131r, ilk kez g\xF6r\xFCyorum."

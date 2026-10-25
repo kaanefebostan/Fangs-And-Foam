@@ -35,13 +35,49 @@ MonoBehaviour:
   girisSesi: {fileID: 8300000, guid: 53094e27dd9ea1e49a1539581d654565, type: 3}
   kizginSesi: {fileID: 8300000, guid: a58221dcb1617d7458724b4cdc7a682e, type: 3}
   espressoCumleleri:
-  - Ruhum kadar kara bir ESPRESSO.
+  - "Selam tatl\u0131m, bir espresso istiyorum."
+  - "Merhaba \u015Fekerim, bana enerji verecek bir espresso yapar m\u0131s\u0131n?"
+  - "Hayat\u0131m, doom scroll yapmadan \xF6nce bir espresso alay\u0131m."
   americanoCumleleri:
-  - "Cehennem s\u0131cakl\u0131\u011F\u0131nda bir AMERICANO."
+  - "Bu Diva'ya enerji laz\u0131m. H\u0131zl\u0131ca bir Americano yap."
+  - "Bir insta girl olarak story'me Americano koymal\u0131y\u0131m. Hemen haz\u0131rla."
+  - "Bug\xFCn TikTok'ta yay\u0131n a\xE7aca\u011F\u0131m. \xD6ncesinde bir Americano'ya hay\u0131r demem."
   latteCumleleri:
-  - "Yumu\u015Fak bir LATTE... \u015Fimdilik."
+  - "Snapchat streak'imde payla\u015Fmak i\xE7in harika bir latte istiyorum."
+  - "Benim gibi divalar\u0131n vazge\xE7ilmezi lattedir. H\u0131zl\u0131ca haz\u0131rla."
+  - "Uzun s\xFCredir story'me latte atmad\u0131m. Bir tane haz\u0131rla."
   pslCumleleri:
-  - "Balkaba\u011F\u0131 m\u0131? Ver bakal\u0131m \u015Fu PUMPKIN SPICE LATTE'yi."
-  notreGecinceCumleleri: []
+  - "Instagram'da g\xF6re g\xF6re can\u0131m \xE7ekti! Bir pumpkin spice latte!"
+  - "Bana bir pumpkin spice latte haz\u0131rla, hemen story atmal\u0131y\u0131m!"
+  - "Sonbahar geldi, bunun hakk\u0131n\u0131 verme vakti. Hemen bir pumpkin spice latte!"
+  turkKahvesiCumleleri:
+  - "Fal kapataca\u011F\u0131m. \u015Eekerli bir T\xFCrk kahvesi istiyorum."
+  - "Bu sabah birinin story'sinde T\xFCrk kahvesi g\xF6rd\xFCm, can\u0131m \xE7ekti. \u015Eekerli olsun."
+  - "D\xFCnk\xFC fal\u0131m\u0131 be\u011Fenmedim, GPT'ye yeniden bakt\u0131raca\u011F\u0131m. \u015Eekerli bir T\xFCrk kahvesi!"
+  notreGecinceCumleleri:
+  - "Acele etmezsen TikTok yay\u0131n\u0131m\u0131 ka\xE7\u0131raca\u011F\u0131m!"
+  - "Wattpad hikayemi okumaya d\xF6nemezsem hi\xE7 ho\u015F olmayacak."
+  - "Divalar kahve beklemez. H\u0131zl\u0131 ol!"
   kizginaGecinceCumleleri:
-  - "H\xC2L\xC2 {KAHVE} YOK MU?!"
+  - "GER\xC7EK bir D\u0130VA oldu\u011Fumu anlad\u0131\u011F\u0131nda \xE7ok ge\xE7 olacak."
+  - "Senin y\xFCz\xFCnden Reels saatim ge\xE7ti! \xC7ABUK OL!"
+  - "685 g\xFCnl\xFCk TikTok serim biterse ben de seni B\u0130T\u0130R\u0130R\u0130M."
+  sorular:
+  - soru: "@pinkyDiva adl\u0131 Instagram hesab\u0131n\u0131 biliyor musun?"
+    cevap1: "Hay\u0131r, ne sa\xE7ma bir isim!"
+    cevap2: "Evet! Foto\u011Fraf \xE7ekinelim!"
+    iyiCevap: 2
+    iyiTepki: "Hahaha tabii tatl\u0131m. Ama bana \xE7ok dokunma, k\u0131yafetlerim pahal\u0131."
+    kotuTepki: "SA\xC7MA MI?! Bir Diva'yla b\xF6yle konu\u015Fulmayaca\u011F\u0131n\u0131 kimse \xF6\u011Fretmedi mi?!"
+  - soru: 
+    cevap1: 
+    cevap2: 
+    iyiCevap: 0
+    iyiTepki: 
+    kotuTepki: 
+  - soru: 
+    cevap1: 
+    cevap2: 
+    iyiCevap: 0
+    iyiTepki: 
+    kotuTepki: 

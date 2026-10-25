@@ -22,6 +22,8 @@ MonoBehaviour:
   notrKonusma: []
   kizginKonusma:
   - {fileID: 21300000, guid: d926867d1760e2f49a1cebe04364e57f, type: 3}
+  - {fileID: 21300000, guid: d926867d1760e2f49a1cebe04364e57f, type: 3}
+  - {fileID: 21300000, guid: d926867d1760e2f49a1cebe04364e57f, type: 3}
   mutluAgizAcik: {fileID: 0}
   notrAgizAcik: {fileID: 0}
   kizginAgizAcik: {fileID: 0}
@@ -36,13 +38,31 @@ MonoBehaviour:
   girisSesi: {fileID: 8300000, guid: 53094e27dd9ea1e49a1539581d654565, type: 3}
   kizginSesi: {fileID: 8300000, guid: a58221dcb1617d7458724b4cdc7a682e, type: 3}
   espressoCumleleri:
-  - aaaaaaaaa
+  - "Sa\xE7lar\u0131m beni b\xFCt\xFCn gece uyutmad\u0131. Bir espresso l\xFCtfen."
+  - "Bug\xFCn \xF6nemli bir toplant\u0131m var. Espresso alay\u0131m."
+  - "Koyu bir espresso sa\xE7lar\u0131m\u0131 kendine getirir."
   americanoCumleleri:
-  - "Bana \xF6l\xFCm kadar s\u0131cak bir AMERICANO yap."
-  latteCumleleri: []
-  pslCumleleri: []
-  turkKahvesiCumleleri: []
-  notreGecinceCumleleri: []
+  - "Espresso son zamanlarda \xE7ok a\u011F\u0131r geliyor. Bir Americano alabilir miyim?"
+  - "Sa\xE7lar\u0131m s\xFCtl\xFC \u015Feyleri sever ama ben bug\xFCn Americano i\xE7ece\u011Fim."
+  - "Kuyumcuya gitmeden \xF6nce bir Americano i\xE7meye geldim."
+  latteCumleleri:
+  - "Bug\xFCn sa\xE7lar\u0131m \xE7ok m\u0131zm\u0131z. Onlar\u0131 yat\u0131\u015Ft\u0131rmak i\xE7in s\xFCtl\xFC bir latte istiyorum."
+  - "Kuaf\xF6r randevumdan \xF6nce sa\xE7lar\u0131m\u0131 sakinle\u015Ftirecek bol s\xFCtl\xFC bir latte l\xFCtfen."
+  - "Sakin ge\xE7en bir g\xFCnde latteye kim hay\u0131r diyebilir?"
+  pslCumleleri:
+  - "Y\u0131l\u0131n o d\xF6nemi geldi, sa\xE7lar\u0131m bayram edecek! Bir pumpkin spice latte!"
+  - "Bol tar\xE7\u0131nl\u0131 bir pumpkin spice latte l\xFCtfen!"
+  - "Sonbahar\u0131n en g\xFCzel yan\u0131 pumpkin spice latteye kavu\u015Fmak."
+  turkKahvesiCumleleri:
+  - "Ah o s\u0131cak \xE7ekirdeklerin kokusu beni may\u0131\u015Ft\u0131r\u0131yor. \u015Eekerli bir T\xFCrk kahvesi!"
+  - "Sa\xE7lar\u0131m sade sever ama bug\xFCn \u015Fekerli bir T\xFCrk kahvesi istiyorum."
+  - "Alt\u0131n g\xFCn\xFCne gitmeden \u015Fekerli bir T\xFCrk kahvesi i\xE7meliyim."
+  notreGecinceCumleleri:
+  - "Y\u0131lanlar sab\u0131rl\u0131d\u0131r, ama ne kadar?"
+  - "Sa\xE7lar\u0131m o kafeini istiyor, h\u0131zl\u0131 ol."
+  - "Bu gecikmeyi \u015Fimdilik g\xF6rmezden geliyorum ama sa\xE7lar\u0131m \xF6yle d\xFC\u015F\xFCnm\xFCyor."
   kizginaGecinceCumleleri:
-  - "H\xC2L\xC2 {KAHVE} YOK MU?!"
+  - "Sa\xE7lar\u0131m senin hakk\u0131nda nefret dolu \u015Feyler f\u0131s\u0131ld\u0131yor. \xC7ABUK OL."
+  - "Korkmana gerek yok... HIZLI OLURSAN TAB\u0130\u0130."
+  - "Sa\xE7lar\u0131m birazdan beni bile dinlemeyecek. H\u0131zl\u0131 dedim!"
   sorular: []

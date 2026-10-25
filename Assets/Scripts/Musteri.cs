@@ -960,6 +960,14 @@ public class Musteri : MonoBehaviour
         // Söylenecek cümleyi şimdiden seç, geçiş bitince söylenecek
         bekleyenCumle = konussun ? tur.HalCumlesiSec(yeniHal, siparis) : null;
 
+        // Cümlede kahvenin adı geçmiyorsa altına küçük bir hatırlatma ekle (oyuncu siparişi unutmasın)
+        if (bekleyenCumle != null)
+        {
+            string ad = CanavarTuru.KahveAdi(siparis);
+            if (bekleyenCumle.IndexOf(ad, System.StringComparison.OrdinalIgnoreCase) < 0)
+                bekleyenCumle += "\n<size=70%>(" + ad + ")</size>";
+        }
+
         StartCoroutine(GecisOynat(eskiHal, yeniHal));
         StartCoroutine(Titre());
     }

@@ -33,11 +33,38 @@ MonoBehaviour:
   sabirSuresi: 20
   girisSesi: {fileID: 8300000, guid: 53094e27dd9ea1e49a1539581d654565, type: 3}
   kizginSesi: {fileID: 8300000, guid: a58221dcb1617d7458724b4cdc7a682e, type: 3}
-  espressoCumleleri: []
-  americanoCumleleri: []
-  latteCumleleri: []
-  pslCumleleri: []
-  turkKahvesiCumleleri: []
-  notreGecinceCumleleri: []
-  kizginaGecinceCumleleri: []
-  sorular: []
+  espressoCumleleri:
+  - "Espresso rica ediyorum. Samanlar\u0131ma renk gelsin."
+  - "Bu korkulu\u011Fun korku salabilmesi i\xE7in espressoya ihtiyac\u0131 var."
+  - "Pazartesi kargalar\u0131 hi\xE7 \xE7ekilmiyor. Bir espresso alabilir miyim?"
+  americanoCumleleri:
+  - "Kuru samanlar\u0131ma iyi gelecek bir Americano'ya ihtiyac\u0131m var."
+  - "Bug\xFCn korkuluklar\u0131n Americano i\xE7me g\xFCn\xFC, biliyor muydun?"
+  - "Karga kovalamak i\xE7in enerji laz\u0131m. Bir Americano l\xFCtfen."
+  latteCumleleri:
+  - "Samanlar\u0131m\u0131n beslenmesi i\xE7in s\xFCtl\xFC bir latte istiyorum."
+  - "Bug\xFCnk\xFC tarla maceramdan sonra s\xFCtl\xFC bir latte iyi gider."
+  - "Kahve ve s\xFCt bir aradayken samanlar\u0131m \xE7ok mutlu! Bir latte l\xFCtfen!"
+  pslCumleleri:
+  - "Ah \u015Fu lezzetli kabaklar... Bir pumpkin spice latte l\xFCtfen!"
+  - "Kargalar\u0131 anlad\u0131\u011F\u0131m tek \u015Fey kabaklara olan a\xE7l\u0131klar\u0131. Pumpkin spice latte alaca\u011F\u0131m."
+  - "Balkaba\u011F\u0131 ve tar\xE7\u0131n... Muhte\u015Fem ikili! Bir pumpkin spice latte!"
+  turkKahvesiCumleleri:
+  - "S\u0131cak bir T\xFCrk kahvesine samanlar\u0131m asla hay\u0131r diyemez. \u015Eekerli olsun."
+  - "Ah o \u015Fekerli T\xFCrk kahvesinin tad\u0131... Samanlar\u0131m ba\u015Fka ne isteyebilir ki?"
+  - "Kargalarla kovalamacan\u0131n ard\u0131ndan \u015Fekerli bir T\xFCrk kahvesi i\xE7meye geldim!"
+  notreGecinceCumleleri:
+  - "Biraz daha h\u0131zl\u0131 olamaz m\u0131s\u0131n?"
+  - "Bak\u0131\u015Flar\u0131ma ald\u0131rma, sadece kahve i\xE7in fazla heyecanl\u0131y\u0131m."
+  - "Samanlar\u0131m da\u011F\u0131lmaya ba\u015Flad\u0131 sanki, h\u0131zl\u0131 olsan iyi olur."
+  kizginaGecinceCumleleri:
+  - "Di\u015Flerimin kusuruna bakma... Kafein i\xE7in can at\u0131yorlar sadece."
+  - "Biraz daha gecikirsen samanlar\u0131ma hakim olamayaca\u011F\u0131m!"
+  - "E\u011Fer o kahveyi i\xE7emezsem seni kargalara yem ederim."
+  sorular:
+  - soru: "Kargalar\u0131 sever misin?"
+    cevap1: "\xC7ok tatl\u0131 hayvanlar."
+    cevap2: "Hay\u0131r."
+    iyiCevap: 2
+    iyiTepki: "Sonunda onlar\u0131n ger\xE7ek y\xFCz\xFCn\xFC g\xF6ren biri!"
+    kotuTepki: "TATLI MI? O aptal ku\u015Flar y\xFCz\xFCnden bir g\xF6z\xFCm\xFC kaybettim!"
