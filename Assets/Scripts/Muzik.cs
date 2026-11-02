@@ -10,6 +10,10 @@ public class Muzik : MonoBehaviour
     [Header("Müzikler: en normalden en karanlığa (srk1, srk2, srk3)")]
     public AudioClip[] muzikler;
 
+    [Header("Menü müziği (boş kalabilir)")]
+    public AudioClip menuMuzigi;          // Ana menü açıkken çalar, oyun başlayınca yavaşça oyun müziğine geçer
+    [Range(0f, 1f)] public float menuSesSeviyesi = 0.25f;
+
     [Header("Eski alanlar (liste boşsa bunlar kullanılır)")]
     public AudioClip normalMuzik;
     public AudioClip karanlikMuzik;
@@ -19,6 +23,7 @@ public class Muzik : MonoBehaviour
     public float gecisSuresi = 1.5f;                   // Geçiş kaç saniye sürer
 
     AudioSource[] kaynaklar;
+    AudioSource menuKaynak;
     int seviye = 0;
     bool susturuldu = false;
 
@@ -38,9 +43,21 @@ public class Muzik : MonoBehaviour
             k.clip = muzikler[i];
             k.loop = true;
             k.playOnAwake = false;
-            k.volume = i == 0 ? sesSeviyesi : 0f;
+            // Menü müziği varsa her şey sessiz başlar, sonra doğru müzik yavaşça açılır
+            k.volume = (i == 0 && menuMuzigi == null) ? sesSeviyesi : 0f;
             if (muzikler[i] != null) k.Play();
             kaynaklar[i] = k;
+        }
+
+        // Menü müziği ayrı bir kaynakta çalar
+        if (menuMuzigi != null)
+        {
+            menuKaynak = gameObject.AddComponent<AudioSource>();
+            menuKaynak.clip = menuMuzigi;
+            menuKaynak.loop = true;
+            menuKaynak.playOnAwake = false;
+            menuKaynak.volume = 0f;
+            menuKaynak.Play();
         }
     }
 
@@ -52,14 +69,26 @@ public class Muzik : MonoBehaviour
         if (susturuldu)
         {
             foreach (AudioSource k in kaynaklar) k.volume = 0f;
+            if (menuKaynak != null) menuKaynak.volume = 0f;
             return;
         }
 
+        // Menü açıkken menü müziği çalar, oyun müziği susar (menü müziği yoksa oyun müziği çalar)
+        bool menude = menuKaynak != null && MenuYoneticisi.Acik;
+
+        // Menüde zaman durmuş olabilir, o yüzden gerçek zamanı kullan
+        float dt = Time.unscaledDeltaTime;
+        if (menuKaynak != null)
+        {
+            float menuHedef = menude ? menuSesSeviyesi : 0f;
+            menuKaynak.volume = Mathf.MoveTowards(menuKaynak.volume, menuHedef, menuSesSeviyesi / gecisSuresi * dt);
+        }
+
         // Seçili müziğin sesi açılır, diğerleri yavaşça kısılır
-        float adim = sesSeviyesi / gecisSuresi * Time.deltaTime;
+        float adim = sesSeviyesi / gecisSuresi * dt;
         for (int i = 0; i < kaynaklar.Length; i++)
         {
-            float hedef = i == seviye ? sesSeviyesi : 0f;
+            float hedef = (!menude && i == seviye) ? sesSeviyesi : 0f;
             kaynaklar[i].volume = Mathf.MoveTowards(kaynaklar[i].volume, hedef, adim);
         }
     }
