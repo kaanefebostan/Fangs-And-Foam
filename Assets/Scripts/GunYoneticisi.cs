@@ -26,6 +26,7 @@ public class GunYoneticisi : MonoBehaviour
 
     [Header("Geçiş efekti")]
     public float belirmeSuresi = 0.6f;   // Gün ekranı kaç saniyede kararıp belirir
+    [Range(0f, 1f)] public float panelKaranligi = 0.88f;   // Gün ekranında arka plan ne kadar kararsın (1 = tam siyah)
 
     [Header("Oyun sonu")]
     [TextArea(2, 6)]
@@ -80,7 +81,19 @@ public class GunYoneticisi : MonoBehaviour
 
     void Start()
     {
-        if (gunPaneli != null) panelSaydamlik = gunPaneli.color.a;
+        if (gunPaneli != null)
+        {
+            // Panel hep aynı karanlıkta olsun ve yazının hemen arkasında dursun:
+            // böylece bardak, makine gibi objelerin hepsinin önünde kalır, yazının arkasında kalır.
+            panelSaydamlik = panelKaranligi;
+            gunPaneli.color = new Color(0f, 0f, 0f, panelKaranligi);
+            Renderer yaziCizici = gunYazisi.GetComponent<Renderer>();
+            if (yaziCizici != null)
+            {
+                gunPaneli.sortingLayerID = yaziCizici.sortingLayerID;
+                gunPaneli.sortingOrder = yaziCizici.sortingOrder - 1;
+            }
+        }
         gunYazisi.gameObject.SetActive(false);
         if (gunPaneli != null) gunPaneli.gameObject.SetActive(false);
 

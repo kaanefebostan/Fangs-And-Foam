@@ -2368,6 +2368,7 @@ MonoBehaviour:
   gunYazisi: {fileID: 2116030482}
   gunPaneli: {fileID: 1616309065}
   belirmeSuresi: 0.6
+  panelKaranligi: 0.88
   ekipMetni: "Berra Naz Saka\nAhmet Sait Araz\nKaan Efe Bostan\nAli Emre \xC7amalan"
   menuyuBekle: 1
   gunler:
@@ -9214,10 +9215,10 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 21
+  m_SortingOrder: 90
   m_MaskInteraction: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.9607843}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.8627451}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -12330,7 +12331,7 @@ MeshRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 22
+  m_SortingOrder: 100
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!224 &2116030484
