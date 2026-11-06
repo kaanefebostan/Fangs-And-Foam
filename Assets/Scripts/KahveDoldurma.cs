@@ -47,6 +47,8 @@ public class KahveDoldurma : MonoBehaviour
 
     List<string> icindekiler = new List<string>();   // Bardağa konanlar
     List<float> farklar = new List<float>();          // Her dökümün hedeften ne kadar saptığı
+    List<float> yonler = new List<float>();           // + ise çizgiyi geçmiş, - ise az doldurmuş
+    string uyari = "";                                // Bardak yazısının altındaki kısa uyarı ("Bardak dolu!")
     List<GameObject> katmanlar = new List<GameObject>();
 
     // Dökme animasyonu için bilgiler
@@ -215,7 +217,15 @@ public class KahveDoldurma : MonoBehaviour
     void DokmeyeBasla()
     {
         // Seçili bir şey yoksa ya da seçili şey dökülmüyorsa (şurup) dökme
-        if (dokuyor || secili == null || !secili.dokulur || doluluk >= 1f) return;
+        if (dokuyor || secili == null || !secili.dokulur) return;
+
+        // Bardak dolu: yeni malzeme dökülemez, oyuncuya söyle
+        if (doluluk >= 1f)
+        {
+            uyari = "<color=#E8762B>Bardak dolu! R: boşalt</color>";
+            YaziyiGuncelle();
+            return;
+        }
 
         dokuyor = true;
         Sesler.DokmeBasla();
@@ -225,6 +235,7 @@ public class KahveDoldurma : MonoBehaviour
         if (sonDokulen == secili.malzemeAdi && suankiKatman != null && farklar.Count > 0)
         {
             farklar.RemoveAt(farklar.Count - 1);
+            yonler.RemoveAt(yonler.Count - 1);
             HedefCizgiyiGuncelle();
             KatmaniCiz();
             YaziyiGuncelle();
@@ -255,6 +266,7 @@ public class KahveDoldurma : MonoBehaviour
         float hedef = HedefSeviye(farklar.Count + 1);
         float fark = doluluk > 1f ? 99f : Mathf.Abs(doluluk - hedef);
         farklar.Add(fark);
+        yonler.Add(doluluk - hedef);
 
         HedefCizgiyiGuncelle();
     }
@@ -265,6 +277,8 @@ public class KahveDoldurma : MonoBehaviour
         katmanlar.Clear();
         icindekiler.Clear();
         farklar.Clear();
+        yonler.Clear();
+        uyari = "";
         sonDokulen = null;
         suankiKatman = null;
         doluluk = 0f;
@@ -313,9 +327,12 @@ public class KahveDoldurma : MonoBehaviour
     void YaziyiGuncelle()
     {
         if (bardakYazisi == null) return;
-        string seciliAd = secili != null ? secili.malzemeAdi : "-";
+        string seciliAd = secili != null ? GorunenAd(secili.malzemeAdi) : "-";
         string ipucu = (secili != null && !secili.dokulur) ? "\n<size=80%>Bardağa tıkla!</size>" : "";
-        bardakYazisi.text = "Seçili: " + seciliAd + "\n" + string.Join(" + ", icindekiler) + ipucu;
+        if (!string.IsNullOrEmpty(uyari)) ipucu += "\n<size=80%>" + uyari + "</size>";
+        List<string> adlar = new List<string>();
+        foreach (string m in icindekiler) adlar.Add(GorunenAd(m));
+        bardakYazisi.text = "Seçili: " + seciliAd + "\n" + string.Join(" + ", adlar) + ipucu;
     }
 
     void ServisEt()
@@ -328,21 +345,34 @@ public class KahveDoldurma : MonoBehaviour
         Sesler.DokmeDur();
         Sesler.Zil();
 
+        // En kötü döküm kaliteyi belirler
+        float enKotu = 0f;
+        int enKotuSira = -1;
+        for (int i = 0; i < farklar.Count; i++)
+        {
+            if (farklar[i] > enKotu) { enKotu = farklar[i]; enKotuSira = i; }
+        }
+
         string kalite;
-        if (!TarifTutuyor())
+        string detay = "";
+        if (enKotu >= 99f)
+        {
+            // Taştıysa önce bu söylenir (taşınca diğer malzeme de eklenemiyor olabilir)
+            kalite = "TASTI";
+            if (!TarifTutuyor()) detay = EksikFazla();
+        }
+        else if (!TarifTutuyor())
         {
             kalite = "YANLIS";
+            detay = EksikFazla();
         }
+        else if (enKotu < 0.04f) kalite = "MUKEMMEL";
+        else if (enKotu < 0.12f) kalite = "IYI";
         else
         {
-            // En kötü döküm kaliteyi belirler
-            float enKotu = 0f;
-            foreach (float f in farklar) enKotu = Mathf.Max(enKotu, f);
-
-            if (enKotu >= 99f) kalite = "TASTI";
-            else if (enKotu < 0.04f) kalite = "MUKEMMEL";
-            else if (enKotu < 0.12f) kalite = "IYI";
-            else kalite = "KOTU";
+            kalite = "KOTU";
+            bool gecti = enKotuSira >= 0 && enKotuSira < yonler.Count && yonler[enKotuSira] > 0f;
+            detay = gecti ? "ÇİZGİYİ GEÇTİN!" : "AZ DOLDU...";
         }
 
         Debug.Log("Siparis: " + siparis + " | Bardakta: " + string.Join(" + ", icindekiler) + " | Sonuc: " + kalite);
@@ -356,7 +386,7 @@ public class KahveDoldurma : MonoBehaviour
         }
 
         YaziyiSil();
-        musteri.KahveGeldi(kalite);
+        musteri.KahveGeldi(kalite, detay);
     }
 
     // Bardaktaki sıvının ortalama rengi (servis animasyonu için)
@@ -397,6 +427,35 @@ public class KahveDoldurma : MonoBehaviour
             if (tarif[i] != bardakIci[i]) return false;
         }
         return true;
+    }
+
+    // Tarife göre bardakta ne eksik / ne fazla: "Süt eksik", "Su fazla" gibi
+    string EksikFazla()
+    {
+        List<string> tarif = new List<string>(Tarif(siparis));
+        List<string> eksik = new List<string>();
+        List<string> fazla = new List<string>();
+        foreach (string m in tarif)
+            if (!icindekiler.Contains(m)) eksik.Add(GorunenAd(m));
+        foreach (string m in icindekiler)
+            if (!tarif.Contains(m) && !fazla.Contains(GorunenAd(m))) fazla.Add(GorunenAd(m));
+
+        List<string> parcalar = new List<string>();
+        if (eksik.Count > 0) parcalar.Add(string.Join(", ", eksik) + " eksik");
+        if (fazla.Count > 0) parcalar.Add(string.Join(", ", fazla) + " fazla");
+        return string.Join(" - ", parcalar);
+    }
+
+    // Kodda Türkçe harfsiz yazılan malzeme adlarının ekranda görünen hali
+    public static string GorunenAd(string ad)
+    {
+        switch (ad)
+        {
+            case "Sut": return "Süt";
+            case "Surup": return "Şurup";
+            case "Seker": return "Şeker";
+        }
+        return ad;
     }
 
     // TARIFLER: yeni kahve eklemek için buraya bir satır ekle

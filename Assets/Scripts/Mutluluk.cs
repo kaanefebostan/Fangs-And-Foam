@@ -198,7 +198,7 @@ public class Mutluluk : MonoBehaviour
         }
 
         yield return new WaitForSeconds(0.8f);
-        oyunBittiYazisi.text = metin + "\n<size=35%>Enter: tekrar dene</size>";
+        oyunBittiYazisi.text = metin + "\n<size=30%>" + Istatistik.KisaOzet(false) + "</size>\n<size=35%>Enter: tekrar dene</size>";
         yenidenBaslayabilir = true;
     }
 

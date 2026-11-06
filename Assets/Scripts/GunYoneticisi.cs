@@ -144,7 +144,10 @@ public class GunYoneticisi : MonoBehaviour
             kazandi = true;
             PlayerPrefs.DeleteKey(KayitAnahtari);   // Oyun bitti, kayda gerek yok
             PlayerPrefs.Save();
-            PaneliAc("KAFE HAYATTA KALDI\n<size=60%>...şimdilik\n\n<size=80%>Fangs & Foam ekibi:\n" + ekipMetni + "</size>\n\nEnter: menüye dön</size>");
+            // Ekrana sığsın diye kısa: istatistik tek satır, ekip tek satır
+            string ekip = ekipMetni.Replace("\n", "  -  ");
+            PaneliAc("KAFE HAYATTA KALDI\n<size=55%>...şimdilik\n\n<size=40%>" + Istatistik.KisaOzet(true)
+                     + "\n\nFangs & Foam: " + ekip + "</size>\n\nEnter: menüye dön</size>");
             return;
         }
 

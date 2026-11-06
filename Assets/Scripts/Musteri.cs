@@ -24,6 +24,9 @@ public class Musteri : MonoBehaviour
     public ParticleSystem gecisEfekti;  // Hal değişirken çıkan efekt (boş kalabilir)
     public SpriteRenderer kapiUyarisi;  // Canavar kapıdayken kapının üstünde zıplayan ünlem (boş kalabilir)
     public TepkiEfekti tepkiEfekti;     // Kalp / duman efekti (boş kalabilir)
+    public TMP_Text siparisEtiketi;     // Bardağın üstündeki "Sipariş: Latte" yazısı (boş kalabilir)
+    public float etiketGecikmesi = 0.5f; // Canavar siparişini söyleyip bitirdikten kaç saniye sonra etiket çıksın
+    public float okumaPayi = 0.5f;       // Sipariş cümlesi bittikten sonra sabır kaç saniye daha beklesin
 
     [Header("Canavarlar (Canavar Turu kartlarını buraya sürükle)")]
     public CanavarTuru[] canavarlar;
@@ -111,6 +114,10 @@ public class Musteri : MonoBehaviour
     float agizSayac;
     int sonAgizKaresi = -1;
     int seri = 0;          // Arka arkaya kaç mükemmel kahve
+    bool etiketBekliyor = false; // Sipariş cümlesi bitince etiket gösterilecek mi
+    float etiketSayac;
+    bool siparisOkunuyor = false; // Canavar siparişini söylerken sabır azalmaz
+    float okumaSayac;
     string bekleyenCumle;  // Geçiş animasyonu bitince söylenecek cümle
 
     // Torba sistemi: her canavar bir kez gelmeden hiçbiri tekrar gelmez
@@ -147,6 +154,8 @@ public class Musteri : MonoBehaviour
 
     void Start()
     {
+        Istatistik.Sifirla();
+        if (siparisEtiketi != null) siparisEtiketi.text = "";
         gorsel = GetComponent<SpriteRenderer>();
         daktilo = siparisYazisi.GetComponent<Daktilo>();
         asilKonum = transform.position;
@@ -193,6 +202,9 @@ public class Musteri : MonoBehaviour
     // Jumpscare başlarken müşteriyi, sabır çubuğunu ve baloncuğu gizler
     public void JumpscareIcinGizle()
     {
+        if (siparisEtiketi != null) siparisEtiketi.text = "";
+        etiketBekliyor = false;
+        siparisOkunuyor = false;
         CancelInvoke();
         saldiriyor = false;
         saldiriAsama = 0;
@@ -331,6 +343,7 @@ public class Musteri : MonoBehaviour
     // GunYoneticisi yeni gün başlayınca çağırır
     public void GunuBaslat()
     {
+        Istatistik.Gun = gunYoneticisi.GunNumarasi;
         // Yeni oyunda güven sıfırdan başlar, sonraki günlerde kaldığı yerden devam eder
         if (gunYoneticisi.GunNumarasi <= 1)
         {
@@ -354,6 +367,13 @@ public class Musteri : MonoBehaviour
 
     void Update()
     {
+        // Tarif kitabı, poster ya da duraklatma menüsü açıkken sipariş etiketi üstlerine binmesin
+        if (siparisEtiketi != null)
+        {
+            bool gizle = TarifKitabi.Acik || Poster.Acik || DuraklatmaMenusu.Acik;
+            if (siparisEtiketi.enabled == gizle) siparisEtiketi.enabled = !gizle;
+        }
+
         if (DuraklatmaMenusu.Acik) return;
         KapiUyarisiniGuncelle();
 
@@ -382,6 +402,14 @@ public class Musteri : MonoBehaviour
         if (!bekliyor) return;
 
         AgizOynat();
+        SiparisEtiketiniKontrolEt();
+
+        // Canavar siparişini söylerken (ve hemen sonrasında biraz) sabır azalmaz
+        if (SiparisOkunuyorMu())
+        {
+            CubuguCiz();
+            return;
+        }
 
         kalanSabir -= Time.deltaTime;
         CubuguCiz();
@@ -548,6 +576,12 @@ public class Musteri : MonoBehaviour
         YaziGoster(tur.CumleSec(siparis));
         bekliyor = true;
         kahveDoldurma.YeniBardak(siparis);
+        // Etiket hemen değil, canavar siparişini söyleyip bitirince çıkar
+        if (siparisEtiketi != null) siparisEtiketi.text = "";
+        etiketBekliyor = true;
+        etiketSayac = etiketGecikmesi;
+        siparisOkunuyor = true;
+        okumaSayac = okumaPayi;
     }
 
     // ---------- SORU SİSTEMİ ----------
@@ -742,7 +776,8 @@ public class Musteri : MonoBehaviour
     }
 
     // Kahve makinesi servis edilince bunu çağırır
-    public void KahveGeldi(string kalite)
+    // detay: neyin yanlış gittiği ("Süt eksik", "ÇİZGİYİ GEÇTİN!" gibi), boş olabilir
+    public void KahveGeldi(string kalite, string detay = "")
     {
         if (!bekliyor) return;
 
@@ -758,18 +793,40 @@ public class Musteri : MonoBehaviour
         else if (kalite == "TASTI")
         {
             Kiz();
-            Bitir("TAŞTI!", kalite);
+            Bitir("TAŞTI!" + KucukSatir(detay), kalite);
         }
         else if (kalite == "YANLIS")
         {
             Kiz();
-            Bitir("YANLIŞ KAHVE!", kalite);
+            Bitir("YANLIŞ KAHVE!" + KucukSatir(detay), kalite);
         }
         else
         {
+            // Kötü dökümde başlık neyin yanlış olduğunu söyler: "ÇİZGİYİ GEÇTİN!" ya da "AZ DOLDU..."
             Kiz();
-            Bitir("KÖTÜ...", kalite);
+            Bitir(string.IsNullOrEmpty(detay) ? "KÖTÜ..." : detay, kalite);
         }
+    }
+
+    // Sonuç yazısının altına küçük bir açıklama satırı
+    static string KucukSatir(string detay)
+    {
+        return string.IsNullOrEmpty(detay) ? "" : "\n<size=55%>" + detay + "</size>";
+    }
+
+    // Sipariş cümlesi hâlâ yazılıyor mu (bitince kısa bir okuma payı daha verilir)
+    bool SiparisOkunuyorMu()
+    {
+        if (!siparisOkunuyor) return false;
+        if (Yaziyor || bekleyenCumle != null || gecisOynuyor)
+        {
+            okumaSayac = okumaPayi;
+            return true;
+        }
+        okumaSayac -= Time.deltaTime;
+        if (okumaSayac > 0f) return true;
+        siparisOkunuyor = false;
+        return false;
     }
 
     void Bitir(string mesaj, string sonuc)
@@ -779,11 +836,19 @@ public class Musteri : MonoBehaviour
         CancelInvoke(nameof(GuvenMesajiniSil));
         sonucYazisi.text = Renklendir(mesaj, sonuc);
 
+        // İstatistik
+        if (sonuc != "GEC") Istatistik.Servis++;
+        if (sonuc == "MUKEMMEL") Istatistik.Mukemmel++;
+        if (siparisEtiketi != null) siparisEtiketi.text = "";
+        etiketBekliyor = false;
+        siparisOkunuyor = false;
+
         // Mükemmel serisi: arka arkaya mükemmel kahve ekstra mutluluk verir
         float bonus = 0f;
         if (sonuc == "MUKEMMEL")
         {
             seri++;
+            Istatistik.EnUzunSeri = Mathf.Max(Istatistik.EnUzunSeri, seri);
             if (seri >= 2)
             {
                 bonus = Mathf.Min(seriBonusu * (seri - 1), enFazlaSeriBonusu);
@@ -1068,6 +1133,18 @@ public class Musteri : MonoBehaviour
         transform.position = asilKonum;
         transform.localScale = asilBoyut;
         titriyor = false;
+    }
+
+    // Sipariş cümlesi yazılıp bitince (biraz bekleyip) bardağın üstüne sipariş etiketi çıkar
+    void SiparisEtiketiniKontrolEt()
+    {
+        if (!etiketBekliyor || siparisEtiketi == null) return;
+        if (Yaziyor) { etiketSayac = etiketGecikmesi; return; }
+        etiketSayac -= Time.deltaTime;
+        if (etiketSayac > 0f) return;
+
+        siparisEtiketi.text = "Sipariş: " + CanavarTuru.KahveAdi(siparis);
+        etiketBekliyor = false;
     }
 
     // Canavarın başının üstünden kalp ya da duman çıkar
