@@ -36,6 +36,7 @@ public class KahveDoldurma : MonoBehaviour
     bool dokuyor;             // Şu an dökülüyor mu
     float katmanBaslangic;    // Şu anki katmanın başladığı seviye
     Transform suankiKatman;   // Şu an dökülen katman
+    string sonDokulen;        // En son dökülen malzeme (aynısı tekrar dökülürse aynı katman devam eder)
     Malzeme secili;           // Seçili malzeme
     string siparis;           // Müşterinin istediği kahve
     int dokulecekSayisi;      // Tarifte kaç dökülen malzeme var
@@ -194,7 +195,9 @@ public class KahveDoldurma : MonoBehaviour
         {
             if (secili != null && !secili.dokulur)
             {
-                icindekiler.Add(secili.malzemeAdi);
+                // Aynı şey (örn. şurup) iki kez eklenmesin
+                if (!icindekiler.Contains(secili.malzemeAdi)) icindekiler.Add(secili.malzemeAdi);
+                sonDokulen = null;   // Bundan sonraki döküm yeni katman olsun
                 secili = null;   // Eklendi, vurgu söner (iki kere eklenmesin)
                 YaziyiGuncelle();
             }
@@ -216,7 +219,20 @@ public class KahveDoldurma : MonoBehaviour
 
         dokuyor = true;
         Sesler.DokmeBasla();
+
+        // Aynı malzeme arka arkaya tekrar dökülüyorsa: yeni malzeme sayılmaz, aynı katman uzar.
+        // Önceki dökümün puanı silinir, bu döküm bitince yeniden hesaplanır.
+        if (sonDokulen == secili.malzemeAdi && suankiKatman != null && farklar.Count > 0)
+        {
+            farklar.RemoveAt(farklar.Count - 1);
+            HedefCizgiyiGuncelle();
+            KatmaniCiz();
+            YaziyiGuncelle();
+            return;
+        }
+
         katmanBaslangic = doluluk;
+        sonDokulen = secili.malzemeAdi;
 
         // Yeni bir renkli katman oluştur
         GameObject katman = Instantiate(kahve.gameObject);
@@ -249,6 +265,8 @@ public class KahveDoldurma : MonoBehaviour
         katmanlar.Clear();
         icindekiler.Clear();
         farklar.Clear();
+        sonDokulen = null;
+        suankiKatman = null;
         doluluk = 0f;
         dokuyor = false;
         Sesler.DokmeDur();
@@ -267,11 +285,12 @@ public class KahveDoldurma : MonoBehaviour
 
     void HedefCizgiyiGuncelle()
     {
-        int sonraki = farklar.Count + 1;
-        bool gorunsun = sonraki <= dokulecekSayisi;
+        // Bütün dökümler bitse de çizgi son hedefte kalır (üstünü tamamlamak isteyen görebilsin)
+        bool gorunsun = dokulecekSayisi > 0;
         hedefCizgi.gameObject.SetActive(gorunsun);
         if (!gorunsun) return;
 
+        int sonraki = Mathf.Min(farklar.Count + 1, dokulecekSayisi);
         Vector3 p = hedefCizgi.position;
         p.y = bardakAlt + HedefSeviye(sonraki) * bardakBoyu;
         hedefCizgi.position = p;
@@ -363,7 +382,12 @@ public class KahveDoldurma : MonoBehaviour
     bool TarifTutuyor()
     {
         List<string> tarif = new List<string>(Tarif(siparis));
-        List<string> bardakIci = new List<string>(icindekiler);
+        // Aynı malzeme birden fazla kez eklendiyse bir kez sayılır
+        List<string> bardakIci = new List<string>();
+        foreach (string m in icindekiler)
+        {
+            if (!bardakIci.Contains(m)) bardakIci.Add(m);
+        }
         tarif.Sort();
         bardakIci.Sort();
 
